@@ -1,0 +1,477 @@
+{
+  "recipes": [
+    {
+      "title": "Tomato Egg Toast",
+      "description": "Soft scrambled eggs and pan-sweetened tomato piled on crisp toast.",
+      "mealType": "breakfast",
+      "cuisine": "American",
+      "prepTimeMinutes": 5,
+      "cookTimeMinutes": 8,
+      "difficulty": "easy",
+      "ingredients": ["eggs", "tomato", "bread", "butter", "salt", "pepper"],
+      "instructions": [
+        "Toast the bread until golden.",
+        "Dice the tomato and cook in a pan with a little butter until softened, 3 minutes.",
+        "Push tomato aside, scramble the eggs in the same pan until just set.",
+        "Season with salt and pepper, pile onto the toast."
+      ],
+      "tips": ["Add chili flakes for a kick.", "Swap bread for a tortilla to make it a wrap."],
+      "nutrition": {"calories": 320, "protein": "16g", "carbs": "28g", "fat": "16g"},
+      "moods": ["relaxed", "tired", "lazy"]
+    },
+    {
+      "title": "Masala French Toast",
+      "description": "Savory Indian-style French toast with onion, chili, and coriander.",
+      "mealType": "breakfast",
+      "cuisine": "Indian",
+      "prepTimeMinutes": 5,
+      "cookTimeMinutes": 10,
+      "difficulty": "easy",
+      "ingredients": ["eggs", "bread", "onion", "green chili", "salt", "oil"],
+      "instructions": [
+        "Whisk eggs with finely chopped onion, chili, and salt.",
+        "Dip bread slices in the mixture, coating both sides.",
+        "Pan-fry in hot oil until golden on both sides.",
+        "Serve warm with ketchup or chutney."
+      ],
+      "tips": ["Add chopped coriander for freshness."],
+      "nutrition": {"calories": 290, "protein": "13g", "carbs": "24g", "fat": "15g"},
+      "moods": ["happy", "energetic", "comfort"]
+    },
+    {
+      "title": "Spicy Egg Sandwich",
+      "description": "A quick, satisfying sandwich with spiced fried eggs.",
+      "mealType": "lunch",
+      "cuisine": "American",
+      "prepTimeMinutes": 5,
+      "cookTimeMinutes": 8,
+      "difficulty": "easy",
+      "ingredients": ["eggs", "bread", "onion", "tomato", "hot sauce", "mayonnaise"],
+      "instructions": [
+        "Fry the eggs to your liking, seasoning with salt and pepper.",
+        "Spread mayonnaise on bread, layer onion and tomato slices.",
+        "Add the fried egg and a dash of hot sauce.",
+        "Close the sandwich and slice in half."
+      ],
+      "tips": ["Toast the bread for extra crunch."],
+      "nutrition": {"calories": 380, "protein": "17g", "carbs": "30g", "fat": "20g"},
+      "moods": ["stressed", "tired", "comfort"]
+    },
+    {
+      "title": "One-Pot Garlic Butter Pasta",
+      "description": "Creamy, garlicky pasta made entirely in a single pot.",
+      "mealType": "dinner",
+      "cuisine": "Italian",
+      "prepTimeMinutes": 5,
+      "cookTimeMinutes": 20,
+      "difficulty": "easy",
+      "ingredients": ["pasta", "garlic", "butter", "parmesan", "onion", "cream"],
+      "instructions": [
+        "Melt butter in a pot and saute chopped garlic and onion until fragrant.",
+        "Add pasta and just enough water/stock to cover, simmer until al dente.",
+        "Stir in cream and parmesan until glossy and thickened.",
+        "Season with salt and pepper and serve immediately."
+      ],
+      "tips": ["Reserve pasta water to loosen the sauce if needed."],
+      "nutrition": {"calories": 540, "protein": "16g", "carbs": "62g", "fat": "24g"},
+      "moods": ["lazy", "relaxed", "comfort"]
+    },
+    {
+      "title": "Chicken Stir-Fry",
+      "description": "Colorful, high-protein stir-fry with crisp vegetables.",
+      "mealType": "dinner",
+      "cuisine": "Asian",
+      "prepTimeMinutes": 10,
+      "cookTimeMinutes": 12,
+      "difficulty": "medium",
+      "ingredients": ["chicken", "bell pepper", "onion", "garlic", "soy sauce", "ginger"],
+      "instructions": [
+        "Slice chicken thinly and marinate briefly with soy sauce.",
+        "Stir-fry chicken in a hot pan/wok until browned, then set aside.",
+        "Stir-fry garlic, ginger, and vegetables until crisp-tender.",
+        "Return chicken to the pan, toss with extra soy sauce, and serve hot."
+      ],
+      "tips": ["Keep the heat high and don't overcrowd the pan."],
+      "nutrition": {"calories": 410, "protein": "34g", "carbs": "18g", "fat": "20g"},
+      "moods": ["energetic", "excited", "happy"]
+    },
+    {
+      "title": "Comforting Chicken Soup",
+      "description": "A warm, gentle soup that feels like a hug in a bowl.",
+      "mealType": "dinner",
+      "cuisine": "American",
+      "prepTimeMinutes": 10,
+      "cookTimeMinutes": 30,
+      "difficulty": "easy",
+      "ingredients": ["chicken", "carrot", "onion", "garlic", "celery", "stock"],
+      "instructions": [
+        "Saute onion, carrot, celery, and garlic until soft.",
+        "Add chicken and stock, bring to a simmer.",
+        "Cook until chicken is tender and vegetables are soft, about 20 minutes.",
+        "Shred the chicken back into the pot, season, and serve warm."
+      ],
+      "tips": ["Add noodles or rice to make it heartier."],
+      "nutrition": {"calories": 320, "protein": "28g", "carbs": "16g", "fat": "14g"},
+      "moods": ["sad", "stressed", "comfort", "calm"]
+    },
+    {
+      "title": "Chickpea & Spinach Curry",
+      "description": "A wholesome, protein-rich curry that comes together in one pan.",
+      "mealType": "dinner",
+      "cuisine": "Indian",
+      "prepTimeMinutes": 10,
+      "cookTimeMinutes": 20,
+      "difficulty": "easy",
+      "ingredients": ["chickpeas", "spinach", "onion", "tomato", "garlic", "ginger"],
+      "instructions": [
+        "Saute onion, garlic, and ginger until golden.",
+        "Add chopped tomato and cook down into a sauce.",
+        "Stir in chickpeas and simmer for 10 minutes.",
+        "Fold in spinach until wilted, season and serve with rice."
+      ],
+      "tips": ["Add garam masala for extra warmth."],
+      "nutrition": {"calories": 360, "protein": "16g", "carbs": "48g", "fat": "12g"},
+      "moods": ["calm", "relaxed", "comfort"]
+    },
+    {
+      "title": "Fresh Greek Salad",
+      "description": "A crisp, refreshing salad with bright Mediterranean flavors.",
+      "mealType": "lunch",
+      "cuisine": "Mediterranean",
+      "prepTimeMinutes": 10,
+      "cookTimeMinutes": 0,
+      "difficulty": "easy",
+      "ingredients": ["cucumber", "tomato", "onion", "feta cheese", "olives", "olive oil"],
+      "instructions": [
+        "Chop cucumber, tomato, and onion into bite-size pieces.",
+        "Combine in a bowl with olives and crumbled feta.",
+        "Drizzle with olive oil and a squeeze of lemon.",
+        "Toss gently and serve chilled."
+      ],
+      "tips": ["Let it sit 10 minutes for flavors to meld."],
+      "nutrition": {"calories": 260, "protein": "8g", "carbs": "14g", "fat": "20g"},
+      "moods": ["energetic", "calm", "happy"]
+    },
+    {
+      "title": "Banana Oat Pancakes",
+      "description": "Naturally sweet pancakes made with mashed banana and oats.",
+      "mealType": "breakfast",
+      "cuisine": "American",
+      "prepTimeMinutes": 5,
+      "cookTimeMinutes": 10,
+      "difficulty": "easy",
+      "ingredients": ["banana", "oats", "eggs", "milk", "cinnamon"],
+      "instructions": [
+        "Mash the banana and whisk in eggs and milk.",
+        "Stir in oats and a pinch of cinnamon, let sit 5 minutes.",
+        "Cook spoonfuls on a hot, lightly oiled pan until bubbles form, then flip.",
+        "Serve warm with honey or fruit."
+      ],
+      "tips": ["Blend the oats first for a smoother texture."],
+      "nutrition": {"calories": 300, "protein": "12g", "carbs": "42g", "fat": "9g"},
+      "moods": ["happy", "energetic", "excited"]
+    },
+    {
+      "title": "Yogurt Berry Bowl",
+      "description": "A light, cooling bowl that takes minutes to put together.",
+      "mealType": "snack",
+      "cuisine": "American",
+      "prepTimeMinutes": 5,
+      "cookTimeMinutes": 0,
+      "difficulty": "easy",
+      "ingredients": ["yogurt", "berries", "honey", "granola"],
+      "instructions": [
+        "Spoon yogurt into a bowl.",
+        "Top with berries, a drizzle of honey, and granola.",
+        "Serve immediately."
+      ],
+      "tips": ["Use frozen berries in a pinch."],
+      "nutrition": {"calories": 220, "protein": "10g", "carbs": "30g", "fat": "6g"},
+      "moods": ["calm", "relaxed", "tired"]
+    },
+    {
+      "title": "Loaded Avocado Toast",
+      "description": "Creamy avocado on crisp toast with a soft egg on top.",
+      "mealType": "breakfast",
+      "cuisine": "American",
+      "prepTimeMinutes": 5,
+      "cookTimeMinutes": 6,
+      "difficulty": "easy",
+      "ingredients": ["avocado", "bread", "eggs", "lemon", "chili flakes"],
+      "instructions": [
+        "Toast the bread until golden.",
+        "Mash avocado with a squeeze of lemon, salt, and pepper.",
+        "Fry or poach an egg to your liking.",
+        "Spread avocado on toast, top with the egg and chili flakes."
+      ],
+      "tips": ["A poached egg keeps it lighter."],
+      "nutrition": {"calories": 340, "protein": "14g", "carbs": "26g", "fat": "22g"},
+      "moods": ["happy", "energetic", "calm"]
+    },
+    {
+      "title": "Beef & Bean Tacos",
+      "description": "Weeknight tacos loaded with seasoned beef and beans.",
+      "mealType": "dinner",
+      "cuisine": "Mexican",
+      "prepTimeMinutes": 10,
+      "cookTimeMinutes": 15,
+      "difficulty": "medium",
+      "ingredients": ["beef", "beans", "onion", "tortilla", "cheese", "lime"],
+      "instructions": [
+        "Brown the beef with chopped onion and taco seasoning.",
+        "Stir in beans and warm through.",
+        "Warm the tortillas and fill with the beef mixture.",
+        "Top with cheese and a squeeze of lime."
+      ],
+      "tips": ["Add salsa or hot sauce for extra kick."],
+      "nutrition": {"calories": 480, "protein": "30g", "carbs": "36g", "fat": "22g"},
+      "moods": ["excited", "energetic", "happy"]
+    },
+    {
+      "title": "Simple Fried Rice",
+      "description": "A satisfying way to use up leftover rice and whatever's in the fridge.",
+      "mealType": "dinner",
+      "cuisine": "Asian",
+      "prepTimeMinutes": 5,
+      "cookTimeMinutes": 12,
+      "difficulty": "easy",
+      "ingredients": ["rice", "eggs", "onion", "carrot", "soy sauce", "peas"],
+      "instructions": [
+        "Scramble the eggs in a hot pan and set aside.",
+        "Stir-fry onion, carrot, and peas until tender.",
+        "Add rice, breaking up clumps, and stir-fry until heated through.",
+        "Return eggs to the pan, add soy sauce, and toss to combine."
+      ],
+      "tips": ["Day-old rice fries up better than fresh."],
+      "nutrition": {"calories": 400, "protein": "14g", "carbs": "58g", "fat": "12g"},
+      "moods": ["lazy", "tired", "relaxed"]
+    },
+    {
+      "title": "Roasted Vegetable Grain Bowl",
+      "description": "A wholesome bowl balancing grains, roasted veg, and a bright dressing.",
+      "mealType": "lunch",
+      "cuisine": "Mediterranean",
+      "prepTimeMinutes": 10,
+      "cookTimeMinutes": 25,
+      "difficulty": "medium",
+      "ingredients": ["rice", "sweet potato", "chickpeas", "spinach", "olive oil", "lemon"],
+      "instructions": [
+        "Roast diced sweet potato and chickpeas with olive oil until golden.",
+        "Cook rice according to package directions.",
+        "Assemble rice, roasted vegetables, and fresh spinach in a bowl.",
+        "Finish with a squeeze of lemon and olive oil."
+      ],
+      "tips": ["Make a double batch for meal prep."],
+      "nutrition": {"calories": 420, "protein": "13g", "carbs": "64g", "fat": "14g"},
+      "moods": ["calm", "energetic", "relaxed"]
+    },
+    {
+      "title": "Grilled Cheese & Tomato Soup",
+      "description": "The ultimate cozy pairing for a low-energy evening.",
+      "mealType": "dinner",
+      "cuisine": "American",
+      "prepTimeMinutes": 5,
+      "cookTimeMinutes": 15,
+      "difficulty": "easy",
+      "ingredients": ["bread", "cheese", "butter", "tomato", "onion", "garlic"],
+      "instructions": [
+        "Simmer tomato, onion, and garlic until soft, then blend smooth.",
+        "Butter bread slices and fill with cheese.",
+        "Grill the sandwich in a pan until golden and the cheese melts.",
+        "Serve alongside the warm tomato soup."
+      ],
+      "tips": ["A splash of cream makes the soup extra silky."],
+      "nutrition": {"calories": 460, "protein": "18g", "carbs": "40g", "fat": "26g"},
+      "moods": ["sad", "comfort", "stressed"]
+    },
+    {
+      "title": "Peanut Butter Banana Toast",
+      "description": "A two-minute snack that's genuinely satisfying.",
+      "mealType": "snack",
+      "cuisine": "American",
+      "prepTimeMinutes": 3,
+      "cookTimeMinutes": 0,
+      "difficulty": "easy",
+      "ingredients": ["bread", "peanut butter", "banana", "honey"],
+      "instructions": [
+        "Toast the bread.",
+        "Spread peanut butter generously.",
+        "Top with sliced banana and a drizzle of honey."
+      ],
+      "tips": ["Add a pinch of cinnamon for warmth."],
+      "nutrition": {"calories": 280, "protein": "9g", "carbs": "34g", "fat": "12g"},
+      "moods": ["tired", "lazy", "happy"]
+    },
+    {
+      "title": "Lemon Garlic Shrimp",
+      "description": "Bright, punchy shrimp ready in under 15 minutes.",
+      "mealType": "dinner",
+      "cuisine": "Mediterranean",
+      "prepTimeMinutes": 5,
+      "cookTimeMinutes": 8,
+      "difficulty": "easy",
+      "ingredients": ["shrimp", "garlic", "lemon", "butter", "parsley"],
+      "instructions": [
+        "Melt butter in a hot pan and add minced garlic.",
+        "Add shrimp and cook 2-3 minutes per side until pink.",
+        "Squeeze lemon juice over and toss with chopped parsley.",
+        "Serve with bread or rice to soak up the sauce."
+      ],
+      "tips": ["Don't overcook the shrimp — it turns rubbery fast."],
+      "nutrition": {"calories": 310, "protein": "28g", "carbs": "6g", "fat": "18g"},
+      "moods": ["excited", "energetic", "happy"]
+    },
+    {
+      "title": "Vegetable Fried Noodles",
+      "description": "Quick noodles tossed with crisp vegetables and soy sauce.",
+      "mealType": "dinner",
+      "cuisine": "Asian",
+      "prepTimeMinutes": 10,
+      "cookTimeMinutes": 10,
+      "difficulty": "easy",
+      "ingredients": ["noodles", "cabbage", "carrot", "onion", "soy sauce", "garlic"],
+      "instructions": [
+        "Cook noodles according to package instructions and drain.",
+        "Stir-fry garlic, onion, carrot, and cabbage until crisp-tender.",
+        "Add noodles and soy sauce, tossing to coat evenly.",
+        "Serve hot, garnished with spring onion if you have it."
+      ],
+      "tips": ["High heat keeps the vegetables crisp."],
+      "nutrition": {"calories": 390, "protein": "11g", "carbs": "62g", "fat": "10g"},
+      "moods": ["lazy", "relaxed", "tired"]
+    },
+    {
+      "title": "Baked Oats with Apple",
+      "description": "A warm, filling breakfast bake that needs almost no effort.",
+      "mealType": "breakfast",
+      "cuisine": "American",
+      "prepTimeMinutes": 5,
+      "cookTimeMinutes": 25,
+      "difficulty": "easy",
+      "ingredients": ["oats", "apple", "milk", "eggs", "cinnamon", "honey"],
+      "instructions": [
+        "Mix oats, milk, eggs, cinnamon, and honey in a baking dish.",
+        "Fold in diced apple.",
+        "Bake at 180C/350F for 20-25 minutes until set.",
+        "Let cool slightly and serve warm."
+      ],
+      "tips": ["Great made ahead and reheated through the week."],
+      "nutrition": {"calories": 310, "protein": "12g", "carbs": "48g", "fat": "8g"},
+      "moods": ["calm", "relaxed", "comfort"]
+    },
+    {
+      "title": "Paneer Tikka Skillet",
+      "description": "Smoky, spiced paneer and peppers cooked in one skillet.",
+      "mealType": "dinner",
+      "cuisine": "Indian",
+      "prepTimeMinutes": 15,
+      "cookTimeMinutes": 15,
+      "difficulty": "medium",
+      "ingredients": ["paneer", "bell pepper", "onion", "yogurt", "garlic", "ginger"],
+      "instructions": [
+        "Marinate paneer and vegetables in yogurt, garlic, ginger, and spices for 10 minutes.",
+        "Cook in a hot skillet until the paneer is lightly charred.",
+        "Add the vegetables and cook until just tender.",
+        "Serve with flatbread or rice."
+      ],
+      "tips": ["A cast-iron pan gives the best char."],
+      "nutrition": {"calories": 380, "protein": "20g", "carbs": "18g", "fat": "24g"},
+      "moods": ["excited", "happy", "energetic"]
+    },
+    {
+      "title": "Creamy Mushroom Soup",
+      "description": "A silky, deeply savory soup perfect for a slow evening.",
+      "mealType": "dinner",
+      "cuisine": "American",
+      "prepTimeMinutes": 10,
+      "cookTimeMinutes": 25,
+      "difficulty": "medium",
+      "ingredients": ["mushroom", "onion", "garlic", "cream", "stock", "butter"],
+      "instructions": [
+        "Saute onion and garlic in butter until soft.",
+        "Add sliced mushrooms and cook until browned.",
+        "Add stock and simmer 15 minutes, then blend until smooth.",
+        "Stir in cream, season, and serve warm."
+      ],
+      "tips": ["Reserve a few sauteed mushrooms to garnish."],
+      "nutrition": {"calories": 300, "protein": "8g", "carbs": "14g", "fat": "24g"},
+      "moods": ["calm", "sad", "comfort"]
+    },
+    {
+      "title": "Quick Veggie Quesadilla",
+      "description": "A crispy, cheesy quesadilla loaded with whatever vegetables you have.",
+      "mealType": "lunch",
+      "cuisine": "Mexican",
+      "prepTimeMinutes": 5,
+      "cookTimeMinutes": 8,
+      "difficulty": "easy",
+      "ingredients": ["tortilla", "cheese", "bell pepper", "onion", "beans"],
+      "instructions": [
+        "Saute bell pepper and onion until soft.",
+        "Layer cheese, vegetables, and beans on a tortilla, top with another.",
+        "Cook in a dry pan until golden and the cheese melts, flipping once.",
+        "Slice into wedges and serve with salsa."
+      ],
+      "tips": ["Don't overfill or it won't flip cleanly."],
+      "nutrition": {"calories": 400, "protein": "16g", "carbs": "38g", "fat": "20g"},
+      "moods": ["happy", "lazy", "energetic"]
+    },
+    {
+      "title": "Honey Garlic Salmon",
+      "description": "A sticky, restaurant-quality glaze on tender salmon.",
+      "mealType": "dinner",
+      "cuisine": "Asian",
+      "prepTimeMinutes": 5,
+      "cookTimeMinutes": 12,
+      "difficulty": "medium",
+      "ingredients": ["salmon", "garlic", "honey", "soy sauce", "ginger"],
+      "instructions": [
+        "Whisk together honey, soy sauce, garlic, and ginger.",
+        "Sear the salmon skin-side down until crisp.",
+        "Flip, pour the sauce over, and simmer until it thickens and glazes the fish.",
+        "Serve with rice or greens."
+      ],
+      "tips": ["Baste the salmon with the sauce as it reduces."],
+      "nutrition": {"calories": 420, "protein": "34g", "carbs": "20g", "fat": "22g"},
+      "moods": ["excited", "happy", "calm"]
+    },
+    {
+      "title": "Overnight Oats",
+      "description": "Prep it the night before for a grab-and-go breakfast.",
+      "mealType": "breakfast",
+      "cuisine": "American",
+      "prepTimeMinutes": 5,
+      "cookTimeMinutes": 0,
+      "difficulty": "easy",
+      "ingredients": ["oats", "milk", "yogurt", "honey", "berries"],
+      "instructions": [
+        "Combine oats, milk, and yogurt in a jar.",
+        "Stir in honey and refrigerate overnight.",
+        "Top with berries before eating.",
+        "Stir well and enjoy cold."
+      ],
+      "tips": ["Keeps well in the fridge for up to 3 days."],
+      "nutrition": {"calories": 280, "protein": "12g", "carbs": "42g", "fat": "6g"},
+      "moods": ["tired", "calm", "relaxed"]
+    },
+    {
+      "title": "Spicy Chickpea Bowl",
+      "description": "A bold, satisfying bowl for when you want big flavor fast.",
+      "mealType": "lunch",
+      "cuisine": "Mediterranean",
+      "prepTimeMinutes": 8,
+      "cookTimeMinutes": 12,
+      "difficulty": "easy",
+      "ingredients": ["chickpeas", "rice", "tomato", "onion", "chili flakes", "lemon"],
+      "instructions": [
+        "Saute onion until golden, then add chickpeas and chili flakes.",
+        "Cook until the chickpeas are slightly crisp.",
+        "Serve over rice with chopped tomato and a squeeze of lemon.",
+        "Adjust spice to taste."
+      ],
+      "tips": ["Smash a few chickpeas for a creamier texture."],
+      "nutrition": {"calories": 380, "protein": "14g", "carbs": "56g", "fat": "10g"},
+      "moods": ["excited", "energetic", "stressed"]
+    }
+  ]
+}
