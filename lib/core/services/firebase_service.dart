@@ -1,26 +1,76 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 
-/// Resilient Firebase integration service providing Cloud Firestore sync
-/// for user preferences, meal plans, shopping list, and saved recipes.
-/// Gracefully falls back when offline or without active credentials.
+/// Centralized Enterprise Firebase integration service (§4, §5).
+/// Provides safe initialization and access to Firebase Core, Auth,
+/// Cloud Firestore, Remote Config, Analytics, and Crashlytics.
+/// Gracefully falls back when running offline, in test suites, or without active credentials.
 class FirebaseService {
   bool _isInitialized = false;
+  FirebaseAuth? _auth;
   FirebaseFirestore? _firestore;
+  FirebaseRemoteConfig? _remoteConfig;
+  FirebaseAnalytics? _analytics;
+  FirebaseCrashlytics? _crashlytics;
 
   bool get isInitialized => _isInitialized;
+  FirebaseAuth? get auth => _auth;
   FirebaseFirestore? get firestore => _firestore;
+  FirebaseRemoteConfig? get remoteConfig => _remoteConfig;
+  FirebaseAnalytics? get analytics => _analytics;
+  FirebaseCrashlytics? get crashlytics => _crashlytics;
 
   Future<void> initialize() async {
     try {
       await Firebase.initializeApp();
-      _firestore = FirebaseFirestore.instance;
       _isInitialized = true;
-      debugPrint('[FirebaseService] Firebase initialized successfully.');
+
+      try {
+        _auth = FirebaseAuth.instance;
+      } catch (e) {
+        debugPrint('[FirebaseService] FirebaseAuth initialization fallback: $e');
+      }
+
+      try {
+        _firestore = FirebaseFirestore.instance;
+      } catch (e) {
+        debugPrint('[FirebaseService] FirebaseFirestore initialization fallback: $e');
+      }
+
+      try {
+        _remoteConfig = FirebaseRemoteConfig.instance;
+      } catch (e) {
+        debugPrint('[FirebaseService] FirebaseRemoteConfig initialization fallback: $e');
+      }
+
+      try {
+        _analytics = FirebaseAnalytics.instance;
+      } catch (e) {
+        debugPrint('[FirebaseService] FirebaseAnalytics initialization fallback: $e');
+      }
+
+      try {
+        _crashlytics = FirebaseCrashlytics.instance;
+        if (!kIsWeb) {
+          FlutterError.onError = _crashlytics!.recordFlutterFatalError;
+          PlatformDispatcher.instance.onError = (error, stack) {
+            _crashlytics!.recordError(error, stack, fatal: true);
+            return true;
+          };
+        }
+      } catch (e) {
+        debugPrint('[FirebaseService] FirebaseCrashlytics initialization fallback: $e');
+      }
+
+      debugPrint('[FirebaseService] Firebase suite initialized successfully.');
     } catch (e) {
       _isInitialized = false;
-      debugPrint('[FirebaseService] Firebase initialization skipped or running offline: $e');
+      debugPrint('[FirebaseService] Firebase core initialization skipped or running offline: $e');
     }
   }
 
@@ -61,7 +111,7 @@ class FirebaseService {
     }
   }
 
-  /// Syncs shopping list item to Cloud Firestore under `users/{userId}/shopping_list/{itemId}`
+  /// Syncs shopping list item to Cloud Firestore under `users/{userId}/shopping_items/{itemId}`
   Future<void> syncShoppingItem({
     required String userId,
     required String itemId,
@@ -72,7 +122,7 @@ class FirebaseService {
       await _firestore!
           .collection('users')
           .doc(userId)
-          .collection('shopping_list')
+          .collection('shopping_items')
           .doc(itemId)
           .set(itemData, SetOptions(merge: true));
     } catch (e) {

@@ -1,3 +1,5 @@
+import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
+
 import '../../../../core/errors/failures.dart';
 import '../../../../core/services/premium_status_provider.dart';
 import '../../../../core/utils/result.dart';
@@ -5,7 +7,8 @@ import '../../domain/entities/subscription_entity.dart';
 import '../../domain/repositories/subscription_repository.dart';
 import '../datasources/revenuecat_data_source.dart';
 
-class SubscriptionRepositoryImpl implements SubscriptionRepository, PremiumStatusProvider {
+class SubscriptionRepositoryImpl
+    implements SubscriptionRepository, PremiumStatusProvider {
   final RevenueCatDataSource dataSource;
 
   SubscriptionRepositoryImpl({required this.dataSource});
@@ -31,7 +34,9 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository, PremiumStatu
       if (info != null && dataSource.lastKnownState.isPremium) {
         return Result.success(dataSource.lastKnownState);
       }
-      return const Result.failure(SubscriptionFailure('Purchase could not be completed.'));
+      return const Result.failure(
+        SubscriptionFailure('Purchase could not be completed.'),
+      );
     } catch (e) {
       return Result.failure(SubscriptionFailure(e.toString()));
     }
@@ -44,9 +49,13 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository, PremiumStatu
       if (info != null && dataSource.lastKnownState.isPremium) {
         return Result.success(dataSource.lastKnownState);
       }
-      return const Result.failure(SubscriptionFailure('No active subscriptions found to restore.'));
+      return const Result.failure(
+        SubscriptionFailure('No active subscriptions found to restore.'),
+      );
     } catch (e) {
-      return Result.failure(SubscriptionFailure('Error restoring purchases: $e'));
+      return Result.failure(
+        SubscriptionFailure('Error restoring purchases: $e'),
+      );
     }
   }
 
@@ -58,12 +67,31 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository, PremiumStatu
     }
     return {
       'current': offerings.current!.identifier,
-      'monthly': offerings.current!.monthly?.storeProduct.priceString ?? '\$4.99/mo',
-      'annual': offerings.current!.annual?.storeProduct.priceString ?? '\$39.99/yr',
+      'monthly':
+          offerings.current!.monthly?.storeProduct.priceString ?? '\$4.99/mo',
+      'annual':
+          offerings.current!.annual?.storeProduct.priceString ?? '\$39.99/yr',
     };
   }
 
-  void setJudgeAccess(bool enabled) {
-    dataSource.setMockJudgeAccess(enabled);
+  @override
+  Future<bool> presentPaywall() async {
+    final result = await dataSource.presentPaywall();
+    return result == PaywallResult.purchased || result == PaywallResult.restored;
+  }
+
+  @override
+  Future<bool> presentPaywallIfNeeded() async {
+    final result = await dataSource.presentPaywallIfNeeded();
+    return result == PaywallResult.purchased || result == PaywallResult.restored;
+  }
+
+  @override
+  Future<void> presentCustomerCenter() async {
+    await dataSource.presentCustomerCenter();
+  }
+
+  Future<void> setJudgeAccess(bool enabled) async {
+    await dataSource.setMockJudgeAccess(enabled);
   }
 }

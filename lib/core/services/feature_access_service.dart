@@ -1,33 +1,51 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../features/remote_config/domain/repositories/remote_config_repository.dart';
 import '../constants/preference_keys.dart';
 import '../constants/subscription_config.dart';
 import 'premium_status_provider.dart';
 
 /// The single place that decides what a user is allowed to do based on
-/// subscription tier (§18/§45). No screen or Cubit should check
-/// `isPremium` or a usage counter directly — everything routes through here,
-/// so changing a limit or adding a new gated feature is a one-file edit.
+/// subscription tier (§18, §34, §35). No screen or Cubit should check
+/// `isPremium` or a usage counter directly — everything routes through here.
 class FeatureAccessService {
   final PremiumStatusProvider premiumStatus;
   final SharedPreferences prefs;
+  final RemoteConfigRepository? remoteConfigRepository;
 
-  FeatureAccessService({required this.premiumStatus, required this.prefs});
+  FeatureAccessService({
+    required this.premiumStatus,
+    required this.prefs,
+    this.remoteConfigRepository,
+  });
 
   bool get isPremium => premiumStatus.isPremium;
+
+  int get dailyRecipeLimit =>
+      remoteConfigRepository?.getCachedConfig().freeDailyRecipeLimit ??
+      SubscriptionConfig.freeRecipeGenerationsPerDay;
+
+  int get weeklyPlanLimit =>
+      remoteConfigRepository?.getCachedConfig().freeWeeklyPlanLimit ??
+      SubscriptionConfig.freeWeeklyPlanGenerationsPerWeek;
+
+  int get favoriteLimit =>
+      remoteConfigRepository?.getCachedConfig().freeFavoriteLimit ??
+      SubscriptionConfig.freeSavedRecipesLimit;
 
   // --- Recipe generation (daily limit) ---
 
   bool canGenerateRecipe() {
     if (isPremium) return true;
     return _dailyCount(PreferenceKeys.recipeGenerationCountPrefix) <
-        SubscriptionConfig.freeRecipeGenerationsPerDay;
+        dailyRecipeLimit;
   }
 
   int remainingRecipeGenerationsToday() {
     if (isPremium) return -1; // unlimited
     final remaining =
-        SubscriptionConfig.freeRecipeGenerationsPerDay - _dailyCount(PreferenceKeys.recipeGenerationCountPrefix);
+        dailyRecipeLimit -
+        _dailyCount(PreferenceKeys.recipeGenerationCountPrefix);
     return remaining < 0 ? 0 : remaining;
   }
 
@@ -41,7 +59,7 @@ class FeatureAccessService {
   bool canGenerateWeeklyPlan() {
     if (isPremium) return true;
     return _weeklyCount(PreferenceKeys.weeklyPlanGenerationCountPrefix) <
-        SubscriptionConfig.freeWeeklyPlanGenerationsPerWeek;
+        weeklyPlanLimit;
   }
 
   Future<void> recordWeeklyPlanGeneration() async {
@@ -53,7 +71,7 @@ class FeatureAccessService {
 
   bool canSaveRecipe(int currentSavedCount) {
     if (isPremium) return true;
-    return currentSavedCount < SubscriptionConfig.freeSavedRecipesLimit;
+    return currentSavedCount < favoriteLimit;
   }
 
   // --- helpers ---

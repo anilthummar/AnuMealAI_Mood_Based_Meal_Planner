@@ -34,11 +34,13 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
     try {
       final sub = await subscriptionRepository.getSubscriptionState();
       final offerings = await subscriptionRepository.getOfferings();
-      emit(state.copyWith(
-        subscription: sub,
-        monthlyPrice: offerings['monthly'] ?? state.monthlyPrice,
-        yearlyPrice: offerings['annual'] ?? state.yearlyPrice,
-      ));
+      emit(
+        state.copyWith(
+          subscription: sub,
+          monthlyPrice: offerings['monthly'] ?? state.monthlyPrice,
+          yearlyPrice: offerings['annual'] ?? state.yearlyPrice,
+        ),
+      );
     } catch (_) {}
   }
 
@@ -57,19 +59,20 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
     final result = await subscriptionRepository.purchasePackage(productId);
     if (result.isSuccess) {
       await analytics.logPurchaseCompleted(productId);
-      emit(state.copyWith(
-        isPurchasing: false,
-        subscription: result.dataOrNull ?? const SubscriptionEntity(tier: SubscriptionTier.premium),
-        successMessage: 'Welcome to AnuMealAI Premium! ✨',
-      ));
+      emit(
+        state.copyWith(
+          isPurchasing: false,
+          subscription:
+              result.dataOrNull ??
+              const SubscriptionEntity(tier: SubscriptionTier.premium),
+          successMessage: 'Welcome to AnuMealAI Premium! ✨',
+        ),
+      );
       return true;
     } else {
       final errMsg = result.failureOrNull?.message ?? 'Purchase failed';
       await analytics.logPurchaseFailed(errMsg);
-      emit(state.copyWith(
-        isPurchasing: false,
-        errorMessage: errMsg,
-      ));
+      emit(state.copyWith(isPurchasing: false, errorMessage: errMsg));
       return false;
     }
   }
@@ -80,40 +83,90 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
 
     final result = await subscriptionRepository.restorePurchases();
     if (result.isSuccess) {
-      emit(state.copyWith(
-        isRestoring: false,
-        subscription: result.dataOrNull ?? const SubscriptionEntity(tier: SubscriptionTier.premium),
-        successMessage: 'Purchases restored successfully! ✨',
-      ));
+      emit(
+        state.copyWith(
+          isRestoring: false,
+          subscription:
+              result.dataOrNull ??
+              const SubscriptionEntity(tier: SubscriptionTier.premium),
+          successMessage: 'Purchases restored successfully! ✨',
+        ),
+      );
       return true;
     } else {
-      emit(state.copyWith(
-        isRestoring: false,
-        errorMessage: result.failureOrNull?.message ?? 'No active purchases found.',
-      ));
+      emit(
+        state.copyWith(
+          isRestoring: false,
+          errorMessage:
+              result.failureOrNull?.message ?? 'No active purchases found.',
+        ),
+      );
       return false;
     }
   }
 
   /// Shipaton 2026 Judge Free Trial / Promo Code Access (§21)
   bool redeemPromoOrTrial(String code) {
-    final clean = code.trim().toUpperCase();
-    if (clean == 'SHIPATON2026' || clean == 'JUDGE_ACCESS' || clean == 'FREE_TRIAL') {
+    final clean = code.trim().toUpperCase().replaceAll(' ', '_');
+    final validCodes = {
+      'SHIPATON2026',
+      'SHIPATON',
+      'JUDGE',
+      'JUDGE_ACCESS',
+      'JUDGE2026',
+      'ANUMEALPRO',
+      'FREE_TRIAL',
+      'PROMO',
+      'VIP',
+      'CHEFPRO',
+    };
+
+    if (validCodes.contains(clean)) {
       if (subscriptionRepository is SubscriptionRepositoryImpl) {
-        (subscriptionRepository as SubscriptionRepositoryImpl).setJudgeAccess(true);
+        (subscriptionRepository as SubscriptionRepositoryImpl).setJudgeAccess(
+          true,
+        );
       }
-      emit(state.copyWith(
-        subscription: const SubscriptionEntity(
-          tier: SubscriptionTier.premium,
-          status: SubscriptionStatus.premium,
-          activeOfferingId: 'shipaton_judge_trial',
+      emit(
+        state.copyWith(
+          subscription: const SubscriptionEntity(
+            tier: SubscriptionTier.premium,
+            status: SubscriptionStatus.premium,
+            activeOfferingId: 'shipaton_judge_trial',
+          ),
+          successMessage:
+              '🎉 Shipaton Judge Trial Unlocked! Full premium access enabled.',
         ),
-        successMessage: '🎉 Shipaton Judge Trial Unlocked! Full premium access enabled.',
-      ));
+      );
       return true;
     }
-    emit(state.copyWith(errorMessage: 'Invalid promo code. Check code and try again.'));
+    emit(
+      state.copyWith(
+        errorMessage: 'Invalid promo code. Try SHIPATON2026 or JUDGE_ACCESS.',
+      ),
+    );
     return false;
+  }
+
+  Future<bool> presentNativePaywall() async {
+    final unlocked = await subscriptionRepository.presentPaywall();
+    if (unlocked) {
+      await loadSubscription();
+    }
+    return unlocked;
+  }
+
+  Future<bool> presentNativePaywallIfNeeded() async {
+    final unlocked = await subscriptionRepository.presentPaywallIfNeeded();
+    if (unlocked) {
+      await loadSubscription();
+    }
+    return unlocked;
+  }
+
+  Future<void> presentCustomerCenter() async {
+    await subscriptionRepository.presentCustomerCenter();
+    await loadSubscription();
   }
 
   void clearMessages() {

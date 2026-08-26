@@ -28,7 +28,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       2 => ThemeMode.dark,
       _ => ThemeMode.system,
     };
-    final notifs = prefs.getBool(PreferenceKeys.notificationsEnabled) ?? true;
+    final notifs = prefs.getBool(PreferenceKeys.notificationsEnabled) ?? false;
 
     String version = '1.0.0';
     try {

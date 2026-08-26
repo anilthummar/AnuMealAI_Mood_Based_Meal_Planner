@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -13,6 +15,8 @@ import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/premium_badge.dart';
 import '../../../../core/widgets/section_header.dart';
+import '../../../auth/presentation/bloc/auth_cubit.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../subscription/presentation/bloc/subscription_cubit.dart';
 import '../../../subscription/presentation/bloc/subscription_state.dart';
 import '../bloc/profile_cubit.dart';
@@ -30,6 +34,156 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
     context.read<ProfileCubit>().loadProfile();
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(
+        source: source,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 85,
+      );
+      if (picked != null && mounted) {
+        context.read<ProfileCubit>().updateAvatar(picked.path);
+        AppSnackbar.show(
+          context,
+          message: 'Profile photo updated! 📸✨',
+          variant: SnackbarVariant.success,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        AppSnackbar.show(
+          context,
+          message: 'Unable to pick image. Please verify device permissions.',
+          variant: SnackbarVariant.error,
+        );
+      }
+    }
+  }
+
+  void _showAvatarOptions(BuildContext context, String? currentPath) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        final scheme = Theme.of(context).colorScheme;
+        final textTheme = Theme.of(context).textTheme;
+
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: scheme.outlineVariant,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Change Profile Photo',
+                  style: textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.golden.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.camera_alt_rounded,
+                      color: AppColors.primaryGoldDark,
+                    ),
+                  ),
+                  title: const Text(
+                    'Take Photo with Camera',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  subtitle: const Text(
+                    'Capture a fresh chef selfie',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                  onTap: () {
+                    Navigator.of(ctx).pop();
+                    _pickImage(ImageSource.camera);
+                  },
+                ),
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.terracotta.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.photo_library_rounded,
+                      color: AppColors.terracotta,
+                    ),
+                  ),
+                  title: const Text(
+                    'Choose from Gallery',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  subtitle: const Text(
+                    'Select photo from device storage',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                  onTap: () {
+                    Navigator.of(ctx).pop();
+                    _pickImage(ImageSource.gallery);
+                  },
+                ),
+                if (currentPath != null && currentPath.isNotEmpty) ...[
+                  const Divider(),
+                  ListTile(
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.delete_outline_rounded,
+                        color: Colors.red,
+                      ),
+                    ),
+                    title: const Text(
+                      'Remove Photo',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.of(ctx).pop();
+                      context.read<ProfileCubit>().removeAvatar();
+                      AppSnackbar.show(
+                        context,
+                        message: 'Profile photo removed',
+                      );
+                    },
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _showEditNameDialog(BuildContext context, String currentName) {
@@ -105,37 +259,94 @@ class _ProfilePageState extends State<ProfilePage> {
                 AppCard(
                   child: Row(
                     children: [
-                      Container(
-                        width: 64,
-                        height: 64,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [AppColors.terracotta, AppColors.golden],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.terracotta.withValues(
-                                alpha: 0.3,
+                      InkWell(
+                        onTap: () =>
+                            _showAvatarOptions(context, prefs.avatarPath),
+                        borderRadius: BorderRadius.circular(34),
+                        child: Stack(
+                          children: [
+                            Container(
+                              width: 68,
+                              height: 68,
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    AppColors.terracotta,
+                                    AppColors.golden,
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.terracotta.withValues(
+                                      alpha: 0.3,
+                                    ),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
                               ),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
+                              child: ClipOval(
+                                child:
+                                    (prefs.avatarPath != null &&
+                                        File(prefs.avatarPath!).existsSync())
+                                    ? Image.file(
+                                        File(prefs.avatarPath!),
+                                        width: 68,
+                                        height: 68,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (ctx, err, stack) =>
+                                            Center(
+                                              child: Text(
+                                                displayName.isNotEmpty
+                                                    ? displayName[0]
+                                                          .toUpperCase()
+                                                    : 'A',
+                                                style: const TextStyle(
+                                                  fontSize: 26,
+                                                  fontWeight: FontWeight.w900,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                      )
+                                    : Center(
+                                        child: Text(
+                                          displayName.isNotEmpty
+                                              ? displayName[0].toUpperCase()
+                                              : 'A',
+                                          style: const TextStyle(
+                                            fontSize: 26,
+                                            fontWeight: FontWeight.w900,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: Container(
+                                padding: const EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                  color: scheme.primary,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: scheme.surface,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: const Icon(
+                                  Icons.camera_alt_rounded,
+                                  size: 13,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
                           ],
-                        ),
-                        child: Center(
-                          child: Text(
-                            displayName.isNotEmpty
-                                ? displayName[0].toUpperCase()
-                                : 'A',
-                            style: const TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.w900,
-                              color: Colors.white,
-                            ),
-                          ),
                         ),
                       ),
                       const SizedBox(width: AppSpacing.md),
@@ -302,7 +513,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     children: [
                                       Text(
                                         isPremium
-                                            ? 'AnuMealAI Premium'
+                                            ? '👑 AnuMealAI Pro'
                                             : 'Free Tier',
                                         style: TextStyle(
                                           color: isPremium
@@ -321,25 +532,49 @@ class _ProfilePageState extends State<ProfilePage> {
                                   const SizedBox(height: 2),
                                   Text(
                                     isPremium
-                                        ? 'Unlimited AI generations • 7-day planner • Chef Mode'
-                                        : '3 recipes / day • Upgrade to unlock all features',
+                                        ? 'All Pro features unlocked • Unlimited AI Planner'
+                                        : '3 recipes / day • Tap to unlock unlimited Pro',
                                     style: TextStyle(
                                       color: isPremium
-                                          ? Colors.white.withValues(alpha: 0.75)
+                                          ? const Color(0xFFFFE082)
                                           : scheme.onPrimaryContainer
                                                 .withValues(alpha: 0.8),
                                       fontSize: 12,
+                                      fontWeight: isPremium
+                                          ? FontWeight.w600
+                                          : FontWeight.w400,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            Icon(
-                              Icons.chevron_right_rounded,
-                              color: isPremium
-                                  ? AppColors.golden
-                                  : scheme.primary,
-                            ),
+                            if (isPremium)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF2E7D32),
+                                  borderRadius: BorderRadius.circular(
+                                    AppSpacing.radiusPill,
+                                  ),
+                                ),
+                                child: const Text(
+                                  'ACTIVE ✨',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              )
+                            else
+                              Icon(
+                                Icons.chevron_right_rounded,
+                                color: scheme.primary,
+                              ),
                           ],
                         ),
                       ),
@@ -557,6 +792,123 @@ class _ProfilePageState extends State<ProfilePage> {
                       );
                     }).toList(),
                   ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+
+                // Account & Session Section (§7, §44, §45)
+                const SectionHeader(title: 'Account & Session'),
+                BlocBuilder<AuthCubit, AuthState>(
+                  builder: (context, authState) {
+                    final user = authState is Authenticated
+                        ? authState.user
+                        : null;
+                    final isGuest = user?.isAnonymous ?? true;
+
+                    return AppCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 20,
+                                backgroundColor: isDark
+                                    ? AppColors.primaryGold.withValues(
+                                        alpha: 0.2,
+                                      )
+                                    : const Color(0xFFFEF3C7),
+                                child: Text(
+                                  isGuest
+                                      ? '👤'
+                                      : (user?.displayName.isNotEmpty == true
+                                            ? user!.displayName[0].toUpperCase()
+                                            : '👨‍🍳'),
+                                  style: const TextStyle(fontSize: 18),
+                                ),
+                              ),
+                              const SizedBox(width: AppSpacing.md),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      isGuest
+                                          ? 'Guest Chef'
+                                          : (user?.displayName ?? 'Chef'),
+                                      style: textTheme.titleSmall?.copyWith(
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                    Text(
+                                      isGuest
+                                          ? 'Session stored locally'
+                                          : (user?.email ?? ''),
+                                      style: textTheme.bodySmall?.copyWith(
+                                        color: scheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                          const Divider(),
+                          const SizedBox(height: AppSpacing.xs),
+                          if (isGuest)
+                            AppButton(
+                              label: 'Sign In / Create Account 🔐',
+                              onPressed: () => context.push(AppRoutes.login),
+                            )
+                          else
+                            OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                              icon: const Icon(Icons.logout_rounded, size: 18),
+                              label: const Text(
+                                'Sign Out',
+                                style: TextStyle(fontWeight: FontWeight.w700),
+                              ),
+                              onPressed: () async {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text('Sign Out?'),
+                                    content: const Text(
+                                      'Are you sure you want to sign out of AnuMealAI?',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(ctx, false),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () =>
+                                            Navigator.pop(ctx, true),
+                                        child: const Text('Sign Out'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                if (confirm == true && context.mounted) {
+                                  await context.read<AuthCubit>().signOut();
+                                  if (context.mounted) {
+                                    context.go(AppRoutes.login);
+                                  }
+                                }
+                              },
+                            ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: AppSpacing.xxl),
               ],

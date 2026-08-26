@@ -1,56 +1,124 @@
-# RevenueCat Setup Guide — AnuMealAI
+# AnuMealAI — RevenueCat Monetization & Subscription Guide
 
-This document outlines the RevenueCat configuration required to enable in-app purchases in production.
-
----
-
-## 1. Dashboard Configuration
-
-1. Log into your [RevenueCat Dashboard](https://app.revenuecat.com).
-2. Create a new Project named **AnuMealAI**.
-3. Under **Project Settings** -> **API Keys**, obtain:
-   - Public iOS API Key (`appl_...`)
-   - Public Android API Key (`goog_...`)
+**AnuMealAI** uses **RevenueCat** as the authoritative single source of truth for in-app subscriptions, dynamic entitlements, Paywalls, Customer Center, and cross-platform billing.
 
 ---
 
-## 2. Entitlements & Offerings
+## 1. Quick Configuration Summary
 
-### Entitlement
-- **Identifier**: `anumeal_premium`
-- **Description**: Access to unlimited AI recipe generation, 7-day weekly planner, and smart pantry matching.
-
-### Products
-Create the following products in the App Store Connect and Google Play Console:
-
-| Product Identifier | Type | Duration | Price Tier |
-|---|---|---|---|
-| `anumeal_premium_monthly` | Auto-renewable Subscription | 1 Month | \$4.99 / month |
-| `anumeal_premium_yearly` | Auto-renewable Subscription | 1 Year | \$39.99 / year |
-
-### Offering
-- **Identifier**: `default`
-- Attach `anumeal_premium_monthly` as the **Monthly** package.
-- Attach `anumeal_premium_yearly` as the **Annual** package (marked as Default / Best Value).
+| Property | Value | Notes |
+|---|---|---|
+| **API Key** | `test_GRcIzLgwSeOerbbBzAMMHbWyXhX` | Configured in `lib/core/constants/app_config.dart` |
+| **Entitlement Identifier** | `anumealai_pro` | Entitlement Name: **AnuMealAI Pro** |
+| **Default Offering** | `default` | Contains Monthly and Yearly packages |
+| **Monthly Package / Product** | `monthly` | Standard Monthly Subscription |
+| **Yearly Package / Product** | `yearly` | Standard Annual Subscription (Best Value) |
+| **SDK Packages** | `purchases_flutter: ^10.10.0`<br>`purchases_ui_flutter: ^10.10.0` | In `pubspec.yaml` |
 
 ---
 
-## 3. Environment Configuration
+## 2. Step-by-Step RevenueCat Dashboard Setup
 
-Supply keys using Flutter's `--dart-define` or via `.env`:
+### Step 1: Create Entitlement
+1. In the RevenueCat Dashboard, navigate to **Project Settings** > **Entitlements**.
+2. Click **+ New Entitlement**.
+3. **Identifier**: `anumealai_pro`
+4. **Description**: `AnuMealAI Pro - Unlimited AI recipe recommendations, 7-day meal planner, smart waste reduction, and chef mode.`
 
-```bash
-flutter run \
-  --dart-define=REVENUECAT_API_KEY_IOS=appl_your_ios_key_here \
-  --dart-define=REVENUECAT_API_KEY_ANDROID=goog_your_android_key_here
+### Step 2: Configure Products
+1. Navigate to **Products**.
+2. Create/Link your store products:
+   - **Monthly**: Identifier: `monthly` (Subscription)
+   - **Yearly**: Identifier: `yearly` (Subscription)
+
+### Step 3: Configure Default Offering
+1. Navigate to **Offerings**.
+2. Select your `Default` offering (or create one with identifier `default`).
+3. Attach packages:
+   - **Monthly Package (`$rc_monthly` or `monthly`)**: Attach product `monthly` -> Link to entitlement `anumealai_pro`.
+   - **Annual Package (`$rc_annual` or `yearly`)**: Attach product `yearly` -> Link to entitlement `anumealai_pro`.
+
+---
+
+## 3. Flutter Architecture & Implementation
+
+The app implements clean architecture layers for RevenueCat:
+
+```
+UI Layers (Pages / Widgets)
+       │
+       ▼
+SubscriptionCubit (State Machine & Reactive Stream Listener)
+       │
+       ▼
+SubscriptionRepository (Domain Interface & Implementation)
+       │
+       ▼
+RevenueCatDataSource (SDK Wrapper with Purchases & PurchasesUI)
+       │
+       ▼
+RevenueCat SDK (purchases_flutter + purchases_ui_flutter)
+```
+
+### 1. SDK Initialization (`main.dart` / `di.dart`)
+```dart
+await sl<RevenueCatDataSource>().initialize();
+```
+* Configures `Purchases` with API key `test_GRcIzLgwSeOerbbBzAMMHbWyXhX`.
+* Sets log level (`LogLevel.debug` in development).
+* Registers real-time `CustomerInfoUpdateListener`.
+
+### 2. Entitlement Checking for `anumealai_pro`
+```dart
+void _handleCustomerInfo(CustomerInfo info) {
+  final entitlement = info.entitlements.all['anumealai_pro'];
+  final isActive = entitlement != null && entitlement.isActive;
+
+  final state = SubscriptionEntity(
+    tier: isActive ? SubscriptionTier.premium : SubscriptionTier.free,
+    status: isActive ? SubscriptionStatus.premium : SubscriptionStatus.free,
+    activeOfferingId: entitlement?.productIdentifier,
+    expirationDate: entitlement?.expirationDate,
+    willRenew: entitlement?.willRenew ?? false,
+  );
+}
+```
+
+### 3. Presenting Native RevenueCat Paywalls
+Using `purchases_ui_flutter`:
+```dart
+// Present Paywall directly:
+final paywallResult = await RevenueCatUI.presentPaywall(
+  displayCloseButton: true,
+);
+
+// Or present only if 'anumealai_pro' is NOT active:
+final result = await RevenueCatUI.presentPaywallIfNeeded(
+  'anumealai_pro',
+  displayCloseButton: true,
+);
+```
+
+### 4. Presenting Customer Center (Self-Serve Management)
+RevenueCat Customer Center allows users to manage active subscriptions, change tiers, cancel, or request refunds:
+```dart
+final result = await RevenueCatUI.presentCustomerCenter();
 ```
 
 ---
 
-## 4. Shipaton 2026 Judge Free Access
+## 4. Production Best Practices Implemented
 
-For judges testing the submission without sandbox payment accounts:
-1. Navigate to the Paywall screen.
-2. Tap **"Judge / Promo Code"**.
-3. Enter `SHIPATON2026` or `JUDGE_ACCESS`.
-4. Premium entitlements will be locally simulated and active across the entire application.
+1. **Firebase Authentication Synchronization**:
+   - On login: `Purchases.logIn(firebaseUser.uid)` binds RevenueCat Customer ID to the Firebase user.
+   - On logout: `Purchases.logOut()` generates an anonymous ID and resets session entitlements.
+
+2. **Offline Resilience & Caching**:
+   - In-memory `lastKnownState` cache ensures feature gates respond instantly without network stalls.
+   - Graceful offline fallback if RevenueCat API is temporarily unreachable.
+
+3. **Restore Purchases Guarantee**:
+   - Compliant with App Store Guideline 3.1.1 and Google Play Billing policies with a 1-tap **Restore Purchases** flow.
+
+4. **Judge / Reviewer Testing Bypass**:
+   - Built-in review tokens (`SHIPATON2026`, `JUDGE_ACCESS`, `ANUMEALPRO`) allow seamless testing on physical devices without sandbox purchase friction.

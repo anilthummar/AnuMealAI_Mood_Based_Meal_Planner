@@ -48,7 +48,6 @@ class _PaywallPageState extends State<PaywallPage> {
             variant: SnackbarVariant.success,
           );
           context.read<SubscriptionCubit>().clearMessages();
-          context.pop();
         }
         if (state.errorMessage != null) {
           AppSnackbar.show(
@@ -61,6 +60,7 @@ class _PaywallPageState extends State<PaywallPage> {
       },
       builder: (context, state) {
         final cubit = context.read<SubscriptionCubit>();
+        final isPremium = state.isPremium;
 
         return Scaffold(
           body: SafeArea(
@@ -77,180 +77,357 @@ class _PaywallPageState extends State<PaywallPage> {
                   children: [
                     const SizedBox(height: AppSpacing.md),
 
-                    // Header badge
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [AppColors.golden, AppColors.terracotta],
-                          ),
-                          borderRadius: BorderRadius.circular(
-                            AppSpacing.radiusPill,
-                          ),
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.auto_awesome,
-                              color: Colors.white,
-                              size: 16,
+                    if (isPremium) ...[
+                      // ============================================
+                      // 👑 PREVIEW: ACTIVE PREMIUM CELEBRATION VIEW
+                      // ============================================
+                      Center(
+                        child: Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [AppColors.golden, AppColors.terracotta],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
                             ),
-                            SizedBox(width: 6),
-                            Text(
-                              'ANUMEALAI PREMIUM',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w800,
-                                fontSize: 12,
-                                letterSpacing: 1.1,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.golden.withValues(alpha: 0.35),
+                                blurRadius: 20,
+                                offset: const Offset(0, 8),
                               ),
+                            ],
+                          ),
+                          child: const Center(
+                            child: Text('👑', style: TextStyle(fontSize: 40)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+
+                      Text(
+                        "You're an AnuMealAI Pro!",
+                        textAlign: TextAlign.center,
+                        style: textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+
+                      Text(
+                        "All AI culinary intelligence, 7-day meal planner, and smart pantry features are completely unlocked.",
+                        textAlign: TextAlign.center,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                          height: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.xl),
+
+                      // Status Badge Card
+                      Container(
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? const Color(0xFF262015)
+                              : const Color(0xFFFEF9EE),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: isDark
+                                ? AppColors.butterGold
+                                : AppColors.primaryGold,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Text(
+                                      '⭐',
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Membership Status',
+                                      style: textTheme.titleSmall?.copyWith(
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF2E7D32),
+                                    borderRadius: BorderRadius.circular(
+                                      AppSpacing.radiusPill,
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'ACTIVE ✨',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 0.8,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: AppSpacing.sm),
+                            const Divider(),
+                            const SizedBox(height: AppSpacing.sm),
+                            _buildFeatureRow(
+                              context,
+                              'Unlimited AI meal recommendations',
+                              unlocked: true,
+                            ),
+                            _buildFeatureRow(
+                              context,
+                              'Full 7-day personalized weekly meal planner',
+                              unlocked: true,
+                            ),
+                            _buildFeatureRow(
+                              context,
+                              'Deep mood & pantry ingredient optimization',
+                              unlocked: true,
+                            ),
+                            _buildFeatureRow(
+                              context,
+                              'Chef cooking mode with smart timers',
+                              unlocked: true,
+                            ),
+                            _buildFeatureRow(
+                              context,
+                              'Smart waste reduction & grocery sync',
+                              unlocked: true,
+                            ),
+                            _buildFeatureRow(
+                              context,
+                              'Unlimited saved recipes & taste learning',
+                              unlocked: true,
                             ),
                           ],
                         ),
                       ),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
+                      const SizedBox(height: AppSpacing.xl),
 
-                    // Headline
-                    Text(
-                      "Turn ingredients into meals you'll actually want to cook.",
-                      textAlign: TextAlign.center,
-                      style: textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        height: 1.3,
+                      AppButton(
+                        label: 'Return to Kitchen 🍳',
+                        onPressed: () => context.pop(),
                       ),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
+                      const SizedBox(height: AppSpacing.sm),
 
-                    // Value Propositions
-                    AppCard(
-                      child: Column(
-                        children: [
-                          _buildFeatureRow(
-                            context,
-                            'Unlimited AI meal recommendations',
+                      Center(
+                        child: TextButton.icon(
+                          icon: const Icon(
+                            Icons.manage_accounts_outlined,
+                            size: 16,
                           ),
-                          _buildFeatureRow(
-                            context,
-                            'Full 7-day personalized weekly meal planner',
+                          label: const Text(
+                            'Manage Subscription (Customer Center)',
                           ),
-                          _buildFeatureRow(
-                            context,
-                            'Deep mood & pantry ingredient optimization',
-                          ),
-                          _buildFeatureRow(
-                            context,
-                            'Chef cooking mode with smart timers',
-                          ),
-                          _buildFeatureRow(
-                            context,
-                            'Smart waste reduction & instant grocery list',
-                          ),
-                          _buildFeatureRow(
-                            context,
-                            'Unlimited saved recipes & full taste learning',
-                          ),
-                        ],
+                          onPressed: () => cubit.presentCustomerCenter(),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-
-                    // Plans Selector
-                    Row(
-                      children: [
-                        // Monthly Option
-                        Expanded(
-                          child: InkWell(
-                            onTap: () =>
-                                setState(() => _isYearlySelected = false),
-                            borderRadius: BorderRadius.circular(
-                              AppSpacing.radiusLg,
+                      Center(
+                        child: TextButton.icon(
+                          icon: const Icon(
+                            Icons.confirmation_num_outlined,
+                            size: 16,
+                          ),
+                          label: const Text('Judge / Promo Code Settings'),
+                          onPressed: () => _showPromoCodeDialog(context),
+                        ),
+                      ),
+                    ] else ...[
+                      // ============================================
+                      // ⚡ PREVIEW: UPGRADE / PURCHASE VIEW
+                      // ============================================
+                      // Header badge
+                      Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [AppColors.golden, AppColors.terracotta],
                             ),
-                            child: AppCard(
-                              borderColor: !_isYearlySelected
-                                  ? scheme.primary
-                                  : null,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Monthly',
-                                    style: textTheme.titleMedium?.copyWith(
-                                      fontWeight: FontWeight.w700,
+                            borderRadius: BorderRadius.circular(
+                              AppSpacing.radiusPill,
+                            ),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.auto_awesome,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                              SizedBox(width: 6),
+                              Text(
+                                'ANUMEALAI PREMIUM',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 12,
+                                  letterSpacing: 1.1,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+
+                      // Headline
+                      Text(
+                        "Turn ingredients into meals you'll actually want to cook.",
+                        textAlign: TextAlign.center,
+                        style: textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          height: 1.3,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+
+                      // Value Propositions
+                      AppCard(
+                        child: Column(
+                          children: [
+                            _buildFeatureRow(
+                              context,
+                              'Unlimited AI meal recommendations',
+                            ),
+                            _buildFeatureRow(
+                              context,
+                              'Full 7-day personalized weekly meal planner',
+                            ),
+                            _buildFeatureRow(
+                              context,
+                              'Deep mood & pantry ingredient optimization',
+                            ),
+                            _buildFeatureRow(
+                              context,
+                              'Chef cooking mode with smart timers',
+                            ),
+                            _buildFeatureRow(
+                              context,
+                              'Smart waste reduction & instant grocery list',
+                            ),
+                            _buildFeatureRow(
+                              context,
+                              'Unlimited saved recipes & full taste learning',
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+
+                      // Plans Selector
+                      Row(
+                        children: [
+                          // Monthly Option
+                          Expanded(
+                            child: InkWell(
+                              onTap: () =>
+                                  setState(() => _isYearlySelected = false),
+                              borderRadius: BorderRadius.circular(
+                                AppSpacing.radiusLg,
+                              ),
+                              child: AppCard(
+                                borderColor: !_isYearlySelected
+                                    ? scheme.primary
+                                    : null,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Monthly',
+                                      style: textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w800,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    state.monthlyPrice,
-                                    style: textTheme.bodyLarge?.copyWith(
-                                      fontWeight: FontWeight.w800,
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      '\$4.99 / month',
+                                      style: textTheme.bodyLarge?.copyWith(
+                                        fontWeight: FontWeight.w700,
+                                        color: scheme.primary,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Billed monthly',
-                                    style: textTheme.bodySmall?.copyWith(
-                                      color: scheme.onSurfaceVariant,
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      'Billed monthly',
+                                      style: textTheme.bodySmall?.copyWith(
+                                        color: scheme.onSurfaceVariant,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: AppSpacing.sm),
+                          const SizedBox(width: AppSpacing.md),
 
-                        // Yearly Option
-                        Expanded(
-                          child: InkWell(
-                            onTap: () =>
-                                setState(() => _isYearlySelected = true),
-                            borderRadius: BorderRadius.circular(
-                              AppSpacing.radiusLg,
-                            ),
+                          // Yearly Option
+                          Expanded(
                             child: Stack(
                               clipBehavior: Clip.none,
                               children: [
-                                AppCard(
-                                  borderColor: _isYearlySelected
-                                      ? scheme.primary
-                                      : null,
-                                  backgroundColor: _isYearlySelected
-                                      ? scheme.primaryContainer.withValues(
-                                          alpha: 0.25,
-                                        )
-                                      : null,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Yearly',
-                                        style: textTheme.titleMedium?.copyWith(
-                                          fontWeight: FontWeight.w700,
+                                InkWell(
+                                  onTap: () =>
+                                      setState(() => _isYearlySelected = true),
+                                  borderRadius: BorderRadius.circular(
+                                    AppSpacing.radiusLg,
+                                  ),
+                                  child: AppCard(
+                                    borderColor: _isYearlySelected
+                                        ? scheme.primary
+                                        : null,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Yearly',
+                                          style: textTheme.titleMedium
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w800,
+                                              ),
                                         ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        state.yearlyPrice,
-                                        style: textTheme.bodyLarge?.copyWith(
-                                          fontWeight: FontWeight.w800,
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          '\$39.99 / year',
+                                          style: textTheme.bodyLarge?.copyWith(
+                                            fontWeight: FontWeight.w700,
+                                            color: scheme.primary,
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        '\$3.33 / mo (Save 33%)',
-                                        style: textTheme.bodySmall?.copyWith(
-                                          color: AppColors.sage,
-                                          fontWeight: FontWeight.bold,
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          '\$3.33 / mo (Save 33%)',
+                                          style: textTheme.bodySmall?.copyWith(
+                                            color: AppColors.sage,
+                                            fontWeight: FontWeight.w700,
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                 ),
                                 Positioned(
@@ -259,12 +436,10 @@ class _PaywallPageState extends State<PaywallPage> {
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 8,
-                                      vertical: 3,
+                                      vertical: 2,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: isDark
-                                          ? AppColors.butterGold
-                                          : AppColors.primaryGold,
+                                      color: AppColors.terracotta,
                                       borderRadius: BorderRadius.circular(
                                         AppSpacing.radiusPill,
                                       ),
@@ -272,7 +447,7 @@ class _PaywallPageState extends State<PaywallPage> {
                                     child: const Text(
                                       'BEST VALUE',
                                       style: TextStyle(
-                                        color: Color(0xFF141414),
+                                        color: Colors.white,
                                         fontSize: 10,
                                         fontWeight: FontWeight.w900,
                                         letterSpacing: 0.5,
@@ -283,65 +458,73 @@ class _PaywallPageState extends State<PaywallPage> {
                               ],
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.xl),
 
-                    // Primary CTA
-                    AppButton(
-                      label: _isYearlySelected
-                          ? 'Start 7-Day Free Trial ✨'
-                          : 'Unlock Monthly Access',
-                      isLoading: state.isPurchasing,
-                      onPressed: () {
-                        if (_isYearlySelected) {
-                          cubit.purchaseYearly();
-                        } else {
-                          cubit.purchaseMonthly();
-                        }
-                      },
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
+                      // CTA Button
+                      AppButton(
+                        label: _isYearlySelected
+                            ? 'Unlock Yearly Access'
+                            : 'Unlock Monthly Access',
+                        isLoading: state.isPurchasing,
+                        onPressed: () {
+                          if (_isYearlySelected) {
+                            cubit.purchaseYearly();
+                          } else {
+                            cubit.purchaseMonthly();
+                          }
+                        },
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
 
-                    // Restore & Promo Row
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        TextButton(
-                          onPressed: state.isRestoring
-                              ? null
-                              : () => cubit.restorePurchases(),
-                          child: Text(
-                            state.isRestoring
-                                ? 'Restoring...'
-                                : 'Restore Purchases',
+                      // Restore & Promo Row
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          TextButton(
+                            onPressed: state.isRestoring
+                                ? null
+                                : () => cubit.restorePurchases(),
+                            child: Text(
+                              state.isRestoring
+                                  ? 'Restoring...'
+                                  : 'Restore Purchases',
+                              style: TextStyle(color: scheme.onSurfaceVariant),
+                            ),
+                          ),
+                          Text(
+                            '•',
                             style: TextStyle(color: scheme.onSurfaceVariant),
                           ),
-                        ),
-                        Text(
-                          '•',
-                          style: TextStyle(color: scheme.onSurfaceVariant),
-                        ),
-                        TextButton(
-                          onPressed: () => _showPromoCodeDialog(context),
-                          child: const Text('Judge / Promo Code'),
-                        ),
-                      ],
-                    ),
+                          TextButton(
+                            onPressed: () => _showPromoCodeDialog(context),
+                            child: const Text(
+                              'Judge / Promo Code',
+                              style: TextStyle(
+                                color: AppColors.primaryGoldDark,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
 
-                    // Legal Footnote
-                    Padding(
-                      padding: const EdgeInsets.only(top: AppSpacing.sm),
-                      child: Text(
-                        'Recurring billing. Cancel anytime in App Store / Google Play settings at least 24 hours before renewal.',
-                        textAlign: TextAlign.center,
-                        style: textTheme.bodySmall?.copyWith(
-                          color: scheme.onSurfaceVariant.withValues(alpha: 0.8),
-                          fontSize: 11,
+                      // Legal Footnote
+                      Padding(
+                        padding: const EdgeInsets.only(top: AppSpacing.sm),
+                        child: Text(
+                          'Recurring billing. Cancel anytime in App Store / Google Play settings at least 24 hours before renewal.',
+                          textAlign: TextAlign.center,
+                          style: textTheme.bodySmall?.copyWith(
+                            color: scheme.onSurfaceVariant.withValues(
+                              alpha: 0.8,
+                            ),
+                            fontSize: 11,
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
 
@@ -369,16 +552,20 @@ class _PaywallPageState extends State<PaywallPage> {
     );
   }
 
-  Widget _buildFeatureRow(BuildContext context, String text) {
+  Widget _buildFeatureRow(
+    BuildContext context,
+    String text, {
+    bool unlocked = false,
+  }) {
     final textTheme = Theme.of(context).textTheme;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          const Icon(
+          Icon(
             Icons.check_circle_rounded,
-            color: AppColors.sage,
+            color: unlocked ? const Color(0xFF2E7D32) : AppColors.sage,
             size: 20,
           ),
           const SizedBox(width: AppSpacing.sm),
@@ -390,6 +577,22 @@ class _PaywallPageState extends State<PaywallPage> {
               ),
             ),
           ),
+          if (unlocked)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2E7D32).withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: const Text(
+                'UNLOCKED',
+                style: TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF2E7D32),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -407,19 +610,16 @@ class _JudgePromoBottomSheet extends StatefulWidget {
 
 class _JudgePromoBottomSheetState extends State<_JudgePromoBottomSheet> {
   late final TextEditingController _controller;
-  late final FocusNode _focusNode;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
-    _focusNode = FocusNode();
   }
 
   @override
   void dispose() {
     _controller.dispose();
-    _focusNode.dispose();
     super.dispose();
   }
 
@@ -450,101 +650,98 @@ class _JudgePromoBottomSheetState extends State<_JudgePromoBottomSheet> {
               height: 1.35,
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.lg),
 
-          // Quick 1-Tap Preset Chips for Judges
+          // 1-Tap Preset Judge Buttons (§21)
           Row(
             children: [
               Expanded(
-                child: InkWell(
-                  onTap: () => _submit('SHIPATON2026'),
-                  borderRadius: BorderRadius.circular(14),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 10,
-                      horizontal: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? const Color(0xFF2C2614)
-                          : const Color(0xFFFEF3C7),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: isDark
-                            ? AppColors.butterGold
-                            : AppColors.primaryGold,
-                        width: 1.2,
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '🎟️ SHIPATON2026',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w900,
-                          color: isDark
-                              ? AppColors.butterGold
-                              : AppColors.primaryGoldDark,
-                        ),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isDark
+                        ? const Color(0xFF2C2416)
+                        : const Color(0xFFFEF3C7),
+                    foregroundColor: isDark
+                        ? AppColors.butterGold
+                        : AppColors.primaryGoldDark,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        color:
+                            (isDark
+                                    ? AppColors.butterGold
+                                    : AppColors.primaryGold)
+                                .withValues(alpha: 0.5),
                       ),
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: InkWell(
-                  onTap: () => _submit('JUDGE_ACCESS'),
-                  borderRadius: BorderRadius.circular(14),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 10,
-                      horizontal: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? const Color(0xFF282828)
-                          : const Color(0xFFF3F4F6),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: isDark
-                            ? const Color(0xFF444444)
-                            : const Color(0xFFD1D5DB),
-                        width: 1.2,
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '⚖️ JUDGE_ACCESS',
+                  onPressed: () => _submit('SHIPATON2026'),
+                  child: const Column(
+                    children: [
+                      Text(
+                        'SHIPATON2026',
                         style: TextStyle(
+                          fontWeight: FontWeight.w900,
                           fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          color: scheme.onSurface,
                         ),
                       ),
+                      Text('1-Tap Unlock 🚀', style: TextStyle(fontSize: 10)),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isDark
+                        ? const Color(0xFF242C20)
+                        : const Color(0xFFE8F5E9),
+                    foregroundColor: isDark
+                        ? const Color(0xFF81C784)
+                        : const Color(0xFF2E7D32),
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        color: const Color(0xFF2E7D32).withValues(alpha: 0.4),
+                      ),
                     ),
+                  ),
+                  onPressed: () => _submit('JUDGE_ACCESS'),
+                  child: const Column(
+                    children: [
+                      Text(
+                        'JUDGE_ACCESS',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 12,
+                        ),
+                      ),
+                      Text('Judge Pass 🏆', style: TextStyle(fontSize: 10)),
+                    ],
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.lg),
 
+          // Custom Input Field
           AppTextField(
-            label: 'Promo / Judge Code',
+            label: 'Enter Code manually',
             controller: _controller,
-            focusNode: _focusNode,
+            textCapitalization: TextCapitalization.characters,
             prefixIcon: Icons.card_giftcard_rounded,
-            onSubmitted: _submit,
+            onSubmitted: (val) => _submit(val),
           ),
           const SizedBox(height: AppSpacing.lg),
 
           AppButton(
-            label: 'Unlock Premium ✨',
-            backgroundColor: isDark
-                ? AppColors.butterGold
-                : AppColors.primaryGold,
-            foregroundColor: const Color(0xFF141414),
+            label: 'Redeem Code ✨',
             onPressed: () => _submit(_controller.text),
           ),
           const SizedBox(height: AppSpacing.sm),

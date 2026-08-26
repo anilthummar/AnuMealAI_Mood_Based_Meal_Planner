@@ -7,4 +7,7 @@ abstract class SubscriptionRepository {
   Future<Result<SubscriptionEntity>> purchasePackage(String packageId);
   Future<Result<SubscriptionEntity>> restorePurchases();
   Future<Map<String, dynamic>> getOfferings();
+  Future<bool> presentPaywall();
+  Future<bool> presentPaywallIfNeeded();
+  Future<void> presentCustomerCenter();
 }

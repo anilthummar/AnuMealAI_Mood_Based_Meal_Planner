@@ -1,6 +1,6 @@
 {
-    "name": "anu_meal_ai",
-    "short_name": "anu_meal_ai",
+    "name": "AnuMealAI",
+    "short_name": "AnuMealAI",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

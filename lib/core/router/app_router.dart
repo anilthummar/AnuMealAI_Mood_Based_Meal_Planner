@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/auth/presentation/pages/forgot_password_page.dart';
+import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/favorites/presentation/pages/favorites_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/ingredients/presentation/pages/ingredients_page.dart';
+import '../../features/legal/presentation/pages/delete_account_page.dart';
+import '../../features/legal/presentation/pages/privacy_policy_page.dart';
+import '../../features/legal/presentation/pages/terms_of_use_page.dart';
 import '../../features/meal_planner/presentation/pages/meal_planner_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
@@ -11,6 +17,7 @@ import '../../features/recipes/domain/entities/recipe.dart';
 import '../../features/recipes/presentation/pages/cooking_mode_page.dart';
 import '../../features/recipes/presentation/pages/recipe_detail_page.dart';
 import '../../features/recipes/presentation/pages/recipes_page.dart';
+import '../../features/remote_config/presentation/pages/maintenance_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/shopping_list/presentation/pages/shopping_list_page.dart';
 import '../../features/subscription/presentation/pages/paywall_page.dart';
@@ -33,6 +40,41 @@ class AppRouter {
         GoRoute(
           path: AppRoutes.onboarding,
           builder: (context, state) => const OnboardingPage(),
+        ),
+        GoRoute(
+          parentNavigatorKey: _rootNavigatorKey,
+          path: AppRoutes.login,
+          builder: (context, state) => const LoginPage(),
+        ),
+        GoRoute(
+          parentNavigatorKey: _rootNavigatorKey,
+          path: AppRoutes.register,
+          builder: (context, state) => const RegisterPage(),
+        ),
+        GoRoute(
+          parentNavigatorKey: _rootNavigatorKey,
+          path: AppRoutes.forgotPassword,
+          builder: (context, state) => const ForgotPasswordPage(),
+        ),
+        GoRoute(
+          parentNavigatorKey: _rootNavigatorKey,
+          path: AppRoutes.maintenance,
+          builder: (context, state) => const MaintenancePage(),
+        ),
+        GoRoute(
+          parentNavigatorKey: _rootNavigatorKey,
+          path: AppRoutes.termsOfUse,
+          builder: (context, state) => const TermsOfUsePage(),
+        ),
+        GoRoute(
+          parentNavigatorKey: _rootNavigatorKey,
+          path: AppRoutes.privacyPolicy,
+          builder: (context, state) => const PrivacyPolicyPage(),
+        ),
+        GoRoute(
+          parentNavigatorKey: _rootNavigatorKey,
+          path: AppRoutes.deleteAccount,
+          builder: (context, state) => const DeleteAccountPage(),
         ),
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) {
@@ -150,25 +192,25 @@ class _ScaffoldWithNavBar extends StatelessWidget {
           },
           items: const [
             LuxuryBottomNavItem(
-              icon: Icons.restaurant_menu_outlined,
-              activeIcon: Icons.restaurant_menu_rounded,
-              label: 'Dishes',
+              icon: Icons.cottage_outlined,
+              activeIcon: Icons.cottage_rounded,
+              label: 'Home',
             ),
             LuxuryBottomNavItem(
-              icon: Icons.calendar_today_outlined,
+              icon: Icons.calendar_month_outlined,
               activeIcon: Icons.calendar_month_rounded,
               label: 'Planner',
             ),
             LuxuryBottomNavItem(
               icon: Icons.auto_awesome_outlined,
               activeIcon: Icons.auto_awesome_rounded,
-              label: 'Discover',
+              label: 'AI Cook',
               isSpecial: true,
             ),
             LuxuryBottomNavItem(
-              icon: Icons.shopping_bag_outlined,
-              activeIcon: Icons.shopping_bag_rounded,
-              label: 'Shopping',
+              icon: Icons.shopping_basket_outlined,
+              activeIcon: Icons.shopping_basket_rounded,
+              label: 'List',
             ),
             LuxuryBottomNavItem(
               icon: Icons.person_outline_rounded,

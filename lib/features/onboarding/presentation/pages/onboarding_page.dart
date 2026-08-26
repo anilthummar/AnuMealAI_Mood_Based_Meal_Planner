@@ -150,36 +150,59 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     AppSpacing.lg,
                     AppSpacing.lg,
                   ),
-                  child: AppButton(
-                    label: state.isLastStep
-                        ? "Let's Cook! 🍳"
-                        : (state.currentStep == 7
-                              ? (state.preferences.notificationsEnabled
-                                    ? "Enable & Continue 🔔"
-                                    : "Continue →")
-                              : (state.isFirstStep
-                                    ? "Get Started ✨"
-                                    : "Continue →")),
-                    backgroundColor: isDark
-                        ? AppColors.butterGold
-                        : AppColors.primaryGold,
-                    foregroundColor: const Color(0xFF141414),
-                    isLoading: state.status == OnboardingStatus.completing,
-                    onPressed: () async {
-                      if (state.isFirstStep) {
-                        cubit.updateName(_nameController.text);
-                      }
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      AppButton(
+                        label: state.isLastStep
+                            ? "Let's Cook! 🍳"
+                            : (state.currentStep == 7
+                                  ? (state.preferences.notificationsEnabled
+                                        ? "Continue →"
+                                        : "Enable Notifications 🔔")
+                                  : (state.isFirstStep
+                                        ? "Get Started ✨"
+                                        : "Continue →")),
+                        backgroundColor: isDark
+                            ? AppColors.butterGold
+                            : AppColors.primaryGold,
+                        foregroundColor: const Color(0xFF141414),
+                        isLoading: state.status == OnboardingStatus.completing,
+                        onPressed: () async {
+                          if (state.isFirstStep) {
+                            cubit.updateName(_nameController.text);
+                          }
+                          if (state.currentStep == 7 &&
+                              !state.preferences.notificationsEnabled) {
+                            await cubit.requestNotificationPermission();
+                          }
+                          if (state.isLastStep) {
+                            await cubit.completeOnboarding();
+                          } else {
+                            cubit.nextStep();
+                            _goToPage(state.currentStep + 1);
+                          }
+                        },
+                      ),
                       if (state.currentStep == 7 &&
-                          state.preferences.notificationsEnabled) {
-                        await cubit.requestNotificationPermission();
-                      }
-                      if (state.isLastStep) {
-                        await cubit.completeOnboarding();
-                      } else {
-                        cubit.nextStep();
-                        _goToPage(state.currentStep + 1);
-                      }
-                    },
+                          !state.preferences.notificationsEnabled) ...[
+                        const SizedBox(height: 8),
+                        TextButton(
+                          onPressed: () {
+                            cubit.nextStep();
+                            _goToPage(state.currentStep + 1);
+                          },
+                          child: Text(
+                            'Maybe Later',
+                            style: TextStyle(
+                              color: scheme.onSurfaceVariant,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               ],
@@ -1120,32 +1143,64 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
           // Interactive Toggle Card
           AppCard(
-            child: SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              activeThumbColor: isDark
-                  ? AppColors.butterGold
-                  : AppColors.primaryGold,
-              title: Text(
-                'Daily Meal Notification',
-                style: textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
+            child: Column(
+              children: [
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  activeThumbColor: isDark
+                      ? AppColors.butterGold
+                      : AppColors.primaryGold,
+                  title: Row(
+                    children: [
+                      Text(
+                        'Daily Meal Notification',
+                        style: textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      if (state.preferences.notificationsEnabled)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 7,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.green.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(
+                              AppSpacing.radiusPill,
+                            ),
+                          ),
+                          child: const Text(
+                            'Active ✨',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.green,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  subtitle: Text(
+                    state.preferences.notificationsEnabled
+                        ? 'Scheduled for 5:00 PM every evening before dinner.'
+                        : 'Receive a friendly dinner idea every evening before dinner time.',
+                    style: textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                      height: 1.3,
+                    ),
+                  ),
+                  value: state.preferences.notificationsEnabled,
+                  onChanged: (val) async {
+                    if (val) {
+                      await cubit.requestNotificationPermission();
+                    } else {
+                      cubit.setNotificationsEnabled(false);
+                    }
+                  },
                 ),
-              ),
-              subtitle: Text(
-                'Receive a friendly dinner idea every evening before dinner time.',
-                style: textTheme.bodySmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                  height: 1.3,
-                ),
-              ),
-              value: state.preferences.notificationsEnabled,
-              onChanged: (val) async {
-                if (val) {
-                  await cubit.requestNotificationPermission();
-                } else {
-                  cubit.setNotificationsEnabled(false);
-                }
-              },
+              ],
             ),
           ),
         ],

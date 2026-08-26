@@ -7,6 +7,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/section_header.dart';
+import '../../../subscription/presentation/bloc/subscription_cubit.dart';
 import '../bloc/settings_cubit.dart';
 import '../bloc/settings_state.dart';
 
@@ -56,7 +57,10 @@ class SettingsPage extends StatelessWidget {
                       title: const Text('System Default'),
                       subtitle: const Text('Follow your device appearance'),
                       trailing: state.themeMode == ThemeMode.system
-                          ? Icon(Icons.check_circle_rounded, color: scheme.primary)
+                          ? Icon(
+                              Icons.check_circle_rounded,
+                              color: scheme.primary,
+                            )
                           : null,
                       onTap: () => cubit.setThemeMode(ThemeMode.system),
                     ),
@@ -66,7 +70,10 @@ class SettingsPage extends StatelessWidget {
                       leading: const Icon(Icons.light_mode_rounded),
                       title: const Text('Light Mode'),
                       trailing: state.themeMode == ThemeMode.light
-                          ? Icon(Icons.check_circle_rounded, color: scheme.primary)
+                          ? Icon(
+                              Icons.check_circle_rounded,
+                              color: scheme.primary,
+                            )
                           : null,
                       onTap: () => cubit.setThemeMode(ThemeMode.light),
                     ),
@@ -76,7 +83,10 @@ class SettingsPage extends StatelessWidget {
                       leading: const Icon(Icons.dark_mode_rounded),
                       title: const Text('Dark Mode'),
                       trailing: state.themeMode == ThemeMode.dark
-                          ? Icon(Icons.check_circle_rounded, color: scheme.primary)
+                          ? Icon(
+                              Icons.check_circle_rounded,
+                              color: scheme.primary,
+                            )
                           : null,
                       onTap: () => cubit.setThemeMode(ThemeMode.dark),
                     ),
@@ -91,7 +101,9 @@ class SettingsPage extends StatelessWidget {
                 child: SwitchListTile(
                   contentPadding: EdgeInsets.zero,
                   title: const Text('Daily Meal Inspiration'),
-                  subtitle: const Text('Gentle recommendations for dinner ideas'),
+                  subtitle: const Text(
+                    'Gentle recommendations for dinner ideas',
+                  ),
                   value: state.notificationsEnabled,
                   onChanged: (val) => cubit.setNotificationsEnabled(val),
                 ),
@@ -107,16 +119,39 @@ class SettingsPage extends StatelessWidget {
                       contentPadding: EdgeInsets.zero,
                       leading: Icon(Icons.auto_awesome, color: scheme.primary),
                       title: const Text('Manage Premium'),
-                      subtitle: const Text('View plans & unlock unlimited AI recipes'),
+                      subtitle: const Text(
+                        'View plans & unlock unlimited AI recipes',
+                      ),
                       trailing: const Icon(Icons.chevron_right_rounded),
                       onTap: () => context.push(AppRoutes.paywall),
                     ),
                     const Divider(),
                     ListTile(
                       contentPadding: EdgeInsets.zero,
-                      leading: Icon(Icons.restore_rounded, color: scheme.secondary),
+                      leading: Icon(
+                        Icons.manage_accounts_outlined,
+                        color: scheme.primary,
+                      ),
+                      title: const Text('Customer Center'),
+                      subtitle: const Text(
+                        'Manage subscription, change plan or request refund',
+                      ),
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                      onTap: () => context
+                          .read<SubscriptionCubit>()
+                          .presentCustomerCenter(),
+                    ),
+                    const Divider(),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(
+                        Icons.restore_rounded,
+                        color: scheme.secondary,
+                      ),
                       title: const Text('Restore Purchases'),
-                      subtitle: const Text('Restore existing App Store or Play Store purchases'),
+                      subtitle: const Text(
+                        'Restore existing App Store or Play Store purchases',
+                      ),
                       trailing: state.isRestoringPurchases
                           ? const SizedBox(
                               width: 20,
@@ -124,7 +159,9 @@ class SettingsPage extends StatelessWidget {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Icon(Icons.chevron_right_rounded),
-                      onTap: state.isRestoringPurchases ? null : () => cubit.restorePurchases(),
+                      onTap: state.isRestoringPurchases
+                          ? null
+                          : () => cubit.restorePurchases(),
                     ),
                   ],
                 ),
@@ -132,7 +169,7 @@ class SettingsPage extends StatelessWidget {
               const SizedBox(height: AppSpacing.lg),
 
               // Legal & About
-              const SectionHeader(title: 'About'),
+              const SectionHeader(title: 'Legal & About'),
               AppCard(
                 child: Column(
                   children: [
@@ -141,30 +178,58 @@ class SettingsPage extends StatelessWidget {
                       title: const Text('Version'),
                       trailing: Text(
                         state.appVersion,
-                        style: textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
                       ),
                     ),
                     const Divider(),
                     ListTile(
                       contentPadding: EdgeInsets.zero,
                       title: const Text('Privacy Policy'),
-                      trailing: const Icon(Icons.open_in_new_rounded, size: 18),
-                      onTap: () {
-                        AppSnackbar.show(context, message: 'Opening Privacy Policy...');
-                      },
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                      onTap: () => context.push(AppRoutes.privacyPolicy),
                     ),
                     const Divider(),
                     ListTile(
                       contentPadding: EdgeInsets.zero,
-                      title: const Text('Terms of Service'),
-                      trailing: const Icon(Icons.open_in_new_rounded, size: 18),
-                      onTap: () {
-                        AppSnackbar.show(context, message: 'Opening Terms of Service...');
-                      },
+                      title: const Text('Terms of Use'),
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                      onTap: () => context.push(AppRoutes.termsOfUse),
                     ),
                   ],
                 ),
               ),
+              const SizedBox(height: AppSpacing.lg),
+
+              // Account & Security
+              const SectionHeader(title: 'Account & Security'),
+              AppCard(
+                child: Column(
+                  children: [
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(
+                        Icons.delete_forever_rounded,
+                        color: scheme.error,
+                      ),
+                      title: Text(
+                        'Delete Account',
+                        style: TextStyle(
+                          color: scheme.error,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      subtitle: const Text(
+                        'Permanently wipe your account and data',
+                      ),
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                      onTap: () => context.push(AppRoutes.deleteAccount),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xl),
             ],
           ),
         );

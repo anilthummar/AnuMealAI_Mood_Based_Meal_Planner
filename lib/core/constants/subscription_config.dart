@@ -1,18 +1,25 @@
 /// Single source of truth for subscription product/entitlement identifiers
-/// and free-tier limits. No other file in the app should hardcode a limit or
-/// a RevenueCat identifier — read them from here so pricing/limit changes are
-/// a one-file edit.
+/// and free-tier limits for AnuMealAI.
 class SubscriptionConfig {
   SubscriptionConfig._();
 
-  /// RevenueCat entitlement identifier configured in the RevenueCat dashboard.
-  static const String premiumEntitlementId = 'premium';
+  /// Primary RevenueCat entitlement identifier configured in the RevenueCat dashboard.
+  static const String premiumEntitlementId = 'anumealai_pro';
 
-  /// RevenueCat product identifiers — configure matching products in App
-  /// Store Connect / Google Play Console and attach them to the entitlement
-  /// above via a RevenueCat Offering.
-  static const String monthlyProductId = 'anu_meal_ai_monthly';
-  static const String yearlyProductId = 'anu_meal_ai_yearly';
+  /// Fallback entitlement identifiers supported for backward/forward compatibility.
+  static const List<String> entitlementIds = [
+    'anumealai_pro',
+    'premium',
+    'pro',
+    'premium_access',
+  ];
+
+  /// RevenueCat product / package identifiers
+  static const String monthlyProductId = 'monthly';
+  static const String yearlyProductId = 'yearly';
+
+  static const List<String> monthlyProductIds = ['monthly', 'anu_meal_ai_monthly'];
+  static const List<String> yearlyProductIds = ['yearly', 'anu_meal_ai_yearly'];
 
   /// Free-tier limits. Premium bypasses all of these (see FeatureAccessService).
   static const int freeRecipeGenerationsPerDay = 3;

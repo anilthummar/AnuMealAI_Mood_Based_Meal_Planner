@@ -12,12 +12,20 @@ import '../services/ai/local_recipe_generator.dart';
 import '../services/ai/remote_ai_recipe_service.dart';
 import '../services/ai/resilient_ai_recipe_service.dart';
 import '../services/analytics_service.dart';
+import '../services/app_version_service.dart';
+import '../services/crashlytics_service.dart';
 import '../services/feature_access_service.dart';
 import '../services/firebase_service.dart';
 import '../services/notification_service.dart';
 import '../services/premium_status_provider.dart';
+import '../services/sync_service.dart';
 
 // Features
+import '../../features/auth/data/datasources/auth_remote_data_source.dart';
+import '../../features/auth/data/repositories/auth_repository_impl.dart';
+import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/auth/presentation/bloc/auth_cubit.dart';
+
 import '../../features/favorites/data/datasources/favorites_local_data_source.dart';
 import '../../features/favorites/data/repositories/favorites_repository_impl.dart';
 import '../../features/favorites/domain/repositories/favorites_repository.dart';
@@ -51,6 +59,11 @@ import '../../features/recipes/data/repositories/recipe_repository_impl.dart';
 import '../../features/recipes/domain/repositories/recipe_repository.dart';
 import '../../features/recipes/presentation/bloc/recipe_cubit.dart';
 
+import '../../features/remote_config/data/datasources/remote_config_data_source.dart';
+import '../../features/remote_config/data/repositories/remote_config_repository_impl.dart';
+import '../../features/remote_config/domain/repositories/remote_config_repository.dart';
+import '../../features/remote_config/presentation/bloc/remote_config_cubit.dart';
+
 import '../../features/settings/presentation/bloc/settings_cubit.dart';
 
 import '../../features/shopping_list/data/datasources/shopping_list_local_data_source.dart';
@@ -75,11 +88,25 @@ Future<void> initDependencyInjection() async {
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
 
   sl.registerLazySingleton<Dio>(() => DioClient.create());
-  sl.registerLazySingleton<AnalyticsService>(
-    () => const ConsoleAnalyticsService(),
-  );
-  sl.registerLazySingleton<NotificationService>(() => AppNotificationService());
   sl.registerLazySingleton<FirebaseService>(() => FirebaseService());
+  sl.registerLazySingleton<AppVersionService>(() => AppVersionService());
+
+  sl.registerLazySingleton<AnalyticsService>(
+    () => sl<FirebaseService>().analytics != null
+        ? FirebaseAnalyticsService(analytics: sl<FirebaseService>().analytics!)
+        : const ConsoleAnalyticsService(),
+  );
+
+  sl.registerLazySingleton<CrashlyticsService>(
+    () => sl<FirebaseService>().crashlytics != null
+        ? FirebaseCrashlyticsService(crashlytics: sl<FirebaseService>().crashlytics!)
+        : const ConsoleCrashlyticsService(),
+  );
+
+  sl.registerLazySingleton<NotificationService>(() => AppNotificationService());
+  sl.registerLazySingleton<SyncService>(
+    () => SyncService(firebaseService: sl()),
+  );
 
   // AI Services
   sl.registerLazySingleton<LocalRecipeGenerator>(() => LocalRecipeGenerator());
@@ -87,12 +114,22 @@ Future<void> initDependencyInjection() async {
     () => RemoteAIRecipeService(sl()),
   );
   sl.registerLazySingleton<AIRecipeService>(
-    () =>
-        ResilientAIRecipeService(remote: sl(), local: sl(), networkInfo: sl()),
+    () => ResilientAIRecipeService(remote: sl(), local: sl(), networkInfo: sl()),
   );
 
   // 2. DataSources
   sl.registerLazySingleton<RevenueCatDataSource>(() => RevenueCatDataSource());
+  sl.registerLazySingleton<AuthRemoteDataSource>(
+    () => FirebaseAuthRemoteDataSource(
+      firebaseAuth: sl<FirebaseService>().auth,
+      prefs: sl(),
+    ),
+  );
+  sl.registerLazySingleton<RemoteConfigDataSource>(
+    () => FirebaseRemoteConfigDataSource(
+      firebaseRemoteConfig: sl<FirebaseService>().remoteConfig,
+    ),
+  );
   sl.registerLazySingleton<ProfileLocalDataSource>(
     () => ProfileLocalDataSource(prefs: sl()),
   );
@@ -109,8 +146,7 @@ Future<void> initDependencyInjection() async {
     () => FavoritesLocalDataSource(box: Hive.box<Map>(HiveBoxes.favorites)),
   );
   sl.registerLazySingleton<ShoppingListLocalDataSource>(
-    () =>
-        ShoppingListLocalDataSource(box: Hive.box<Map>(HiveBoxes.shoppingList)),
+    () => ShoppingListLocalDataSource(box: Hive.box<Map>(HiveBoxes.shoppingList)),
   );
   sl.registerLazySingleton<MealPlannerLocalDataSource>(
     () => MealPlannerLocalDataSource(box: Hive.box<Map>(HiveBoxes.mealPlans)),
@@ -122,8 +158,24 @@ Future<void> initDependencyInjection() async {
   sl.registerSingleton<SubscriptionRepository>(subRepoImpl);
   sl.registerSingleton<PremiumStatusProvider>(subRepoImpl);
 
+  sl.registerLazySingleton<RemoteConfigRepository>(
+    () => RemoteConfigRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  sl.registerLazySingleton<AuthRepository>(
+    () => AuthRepositoryImpl(
+      remoteDataSource: sl(),
+      firebaseService: sl(),
+      analytics: sl(),
+    ),
+  );
+
   sl.registerLazySingleton<FeatureAccessService>(
-    () => FeatureAccessService(premiumStatus: sl(), prefs: sl()),
+    () => FeatureAccessService(
+      premiumStatus: sl(),
+      prefs: sl(),
+      remoteConfigRepository: sl(),
+    ),
   );
 
   sl.registerLazySingleton<MoodRepository>(
@@ -152,6 +204,13 @@ Future<void> initDependencyInjection() async {
   );
 
   // 4. Cubits
+  sl.registerFactory<AuthCubit>(() => AuthCubit(authRepository: sl()));
+  sl.registerFactory<RemoteConfigCubit>(
+    () => RemoteConfigCubit(
+      remoteConfigRepository: sl(),
+      appVersionService: sl(),
+    ),
+  );
   sl.registerFactory<MoodCubit>(() => MoodCubit(moodRepository: sl()));
   sl.registerFactory<ProfileCubit>(() => ProfileCubit(profileRepository: sl()));
   sl.registerFactory<OnboardingCubit>(

@@ -19,6 +19,7 @@ class AppTextField extends StatelessWidget {
   final String? Function(String?)? validator;
   final Color? fillColor;
   final EdgeInsetsGeometry? contentPadding;
+  final TextCapitalization textCapitalization;
 
   const AppTextField({
     super.key,
@@ -38,6 +39,7 @@ class AppTextField extends StatelessWidget {
     this.validator,
     this.fillColor,
     this.contentPadding,
+    this.textCapitalization = TextCapitalization.none,
   });
 
   @override
@@ -59,6 +61,7 @@ class AppTextField extends StatelessWidget {
       focusNode: focusNode,
       obscureText: obscureText,
       keyboardType: keyboardType,
+      textCapitalization: textCapitalization,
       onChanged: onChanged,
       onFieldSubmitted: onSubmitted,
       maxLines: maxLines,

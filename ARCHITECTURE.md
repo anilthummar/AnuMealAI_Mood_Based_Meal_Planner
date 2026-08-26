@@ -1,61 +1,80 @@
-# Architecture Documentation — AnuMealAI
+# AnuMealAI — Architectural Design & Specification
 
-## 🏛️ Architectural Principles
+## 1. Architectural Philosophy
 
-AnuMealAI is built using **Clean Architecture** with a strict layer separation:
+AnuMealAI adheres to **Clean Architecture** combined with **Feature-First modularization** and the **BLoC / Cubit state management pattern**.
 
-1. **Presentation Layer (`presentation/`)**:
-   - Uses `Bloc` / `Cubit` for state management with immutable states extending `Equatable`.
-   - UI widgets consume state via `BlocBuilder` and `BlocConsumer`.
-   - Navigation is handled through declarative `GoRouter` with `StatefulShellRoute.indexedStack`.
-
-2. **Domain Layer (`domain/`)**:
-   - Contains pure Dart Entities and business logic (e.g. `RecipeMatchCalculator`).
-   - Defines abstract Repository contracts (`IngredientRepository`, `RecipeRepository`, `MealPlannerRepository`, `SubscriptionRepository`).
-   - Completely decoupled from Flutter, HTTP clients, and persistence mechanisms.
-
-3. **Data Layer (`data/`)**:
-   - Contains Models that convert between domain entities and serialized Map/JSON structures.
-   - Local Data Sources persist models into isolated **Hive** boxes (`Hive.box<Map>`).
-   - Remote Data Sources handle API communication via **Dio** and **RevenueCat SDK**.
-
----
-
-## 🔒 Subscription & Inversion of Control
-
-To avoid circular dependencies between `core/` and `features/subscription/`:
-- `lib/core/services/premium_status_provider.dart` defines a clean interface (`isPremium`, `premiumChanges`).
-- `SubscriptionRepositoryImpl` implements `PremiumStatusProvider`.
-- `FeatureAccessService` checks daily limits and premium status without directly importing subscription presentation or data classes.
-
-```mermaid
-graph TD
-    A[FeatureAccessService] -->|queries| B[PremiumStatusProvider interface]
-    C[SubscriptionRepositoryImpl] -.->|implements| B
-    D[SubscriptionCubit] -->|calls| C
-    E[PaywallPage] -->|dispatches to| D
+```
+[Presentation Layer]
+      │ (Cubit.events / State Streams)
+      ▼
+[Domain Layer: Use Cases & Entities]
+      │ (Abstract Repository Interfaces)
+      ▼
+[Data Layer: Repositories & Data Sources]
+      │
+ ┌────┴───────────────────────────┬─────────────────────────┐
+ ▼                                ▼                         ▼
+[Local Hive Storage]      [Firebase Services]      [RevenueCat SDK]
 ```
 
----
-
-## 🗄️ Persistence Scheme (Hive & SharedPreferences)
-
-| Key / Box Name | Purpose | Implementation |
-|---|---|---|
-| `anumeal_ingredients` | Stored pantry ingredients & availability status | `Hive.box<Map>` |
-| `anumeal_recipes_cache` | Cached recipe suggestions & offline templates | `Hive.box<Map>` |
-| `anumeal_favorites` | User favorite recipes | `Hive.box<Map>` |
-| `anumeal_shopping_list` | Shopping list items & completion status | `Hive.box<Map>` |
-| `anumeal_meal_plans` | 7-day weekly meal plans & slot assignments | `Hive.box<Map>` |
-| `anumeal_meal_feedback` | User meal ratings and feedback history | `Hive.box<Map>` |
-| `pref_user_preferences` | User profile, dietary choices, cuisines, skill level | `SharedPreferences` |
-| `pref_recipe_gen_count_*` | Daily rate limiting counter for free-tier users | `SharedPreferences` |
-| `pref_cooking_streak` | Cooking streak days and streak tracker | `SharedPreferences` |
+### Core Design Invariants
+1. **Unidirectional Data Flow**: UI dispatches intent to Cubits -> Cubits execute business logic -> Cubits emit immutable States -> UI renders via `BlocBuilder` / `BlocConsumer`.
+2. **Entitlement Source of Truth**: User premium access is never determined by local boolean flags or Firestore fields alone; it is derived strictly through the `RevenueCatDataSource` entitlement verification (`premium_access`), cached in `PremiumStatusProvider`.
+3. **Offline Resilience**: All critical user actions (pantry edits, recipe bookmarking, meal schedule modifications, shopping list updates) work offline first through Hive and queue changes to `SyncService`.
+4. **Data Isolation on Logout**: When a user signs out, `SyncService.clearLocalUserData()` immediately wipes all private Hive boxes so that User A's data is never exposed to User B.
 
 ---
 
-## 🤖 AI Resilience Strategy
+## 2. Layer Definitions
 
-1. **Remote LLM Service (`RemoteAIRecipeService`)**: Calls external AI endpoint (Gemini / OpenAI / Custom Proxy) with structured JSON output when internet is available and API key is present.
-2. **Local Algorithmic Generator (`LocalRecipeGenerator`)**: When offline, unconfigured, or if the network request fails/times out, the app deterministically generates rich recipes from bundled curated template assets (`assets/data/recipe_templates.json`).
-3. **Resilient AI Service (`ResilientAIRecipeService`)**: Transparently intercepts all recipe requests, executes the fallback strategy, and guarantees the app **never crashes** due to API outages.
+### Presentation Layer (`lib/features/*/presentation/`)
+- **Pages**: Top-level route destinations mapped in `AppRouter`.
+- **Widgets**: Reusable, atomic UI components themed with the AnuMealAI warm editorial design system.
+- **Cubits & States**: Lightweight state machines handling UI state transitions without boilerplate event classes.
+
+### Domain Layer (`lib/features/*/domain/`)
+- **Entities**: Pure Dart immutable business objects extending `Equatable`. Free of third-party framework dependencies.
+- **Repositories**: Abstract contracts defining data operations required by business features.
+
+### Data Layer (`lib/features/*/data/`)
+- **Data Sources**: Remote (`FirebaseAuthRemoteDataSource`, `FirebaseRemoteConfigDataSource`, `RevenueCatDataSource`) and Local (`HiveBoxDataSources`).
+- **Repositories**: Concrete implementations orchestrating local caching, remote synchronization, error mapping, and analytics emission.
+
+---
+
+## 3. State Management & Lifecycle
+
+| Feature | Cubit | Key States | Responsibilities |
+|---|---|---|---|
+| **Auth** | `AuthCubit` | `AuthInitial`, `AuthLoading`, `Authenticated`, `Unauthenticated`, `PasswordResetSent`, `AuthError` | Listens to Firebase Auth stream, manages login, guest session, registration, password recovery, account deletion. |
+| **Remote Config** | `RemoteConfigCubit` | `RemoteConfigState` | Evaluates version updates, checks maintenance mode, provides dynamic limits. |
+| **Subscription** | `SubscriptionCubit` | `SubscriptionState` | Manages paywall offerings, purchase execution, restores, entitlement status, and Judge promo bypass. |
+| **Mood** | `MoodCubit` | `MoodState` | Active mood selection, mood-filtered recipes. |
+| **Recipes** | `RecipeCubit` | `RecipeState` | AI recipe generation, pantry match calculation, cooking mode step tracking. |
+| **Meal Planner** | `MealPlannerCubit` | `MealPlannerState` | 7-day breakfast/lunch/dinner plan scheduling. |
+| **Shopping List** | `ShoppingListCubit` | `ShoppingListState` | Grocery items, check/uncheck status, bulk recipe ingredient import. |
+| **Pantry** | `IngredientCubit` | `IngredientState` | Ingredient inventory, expiration tracking, category grouping. |
+| **Favorites** | `FavoritesCubit` | `FavoritesState` | Bookmarking recipes, custom user recipe notes. |
+| **Settings** | `SettingsCubit` | `SettingsState` | Theme switching (system/light/dark), notification permissions, legal navigation. |
+
+---
+
+## 4. Semantic Version Comparison Specification
+
+Semantic versions follow the `MAJOR.MINOR.PATCH` pattern. The `AppVersionService.compareVersions` method parses each period-delimited segment into integers:
+
+```dart
+// Guarantees proper comparison where "1.0.9" is strictly less than "1.0.10"
+static int compareVersions(String v1, String v2) {
+  final parts1 = v1.split('.').map((e) => int.tryParse(e) ?? 0).toList();
+  final parts2 = v2.split('.').map((e) => int.tryParse(e) ?? 0).toList();
+  final length = math.max(parts1.length, parts2.length);
+  for (int i = 0; i < length; i++) {
+    final p1 = i < parts1.length ? parts1[i] : 0;
+    final p2 = i < parts2.length ? parts2[i] : 0;
+    if (p1 != p2) return p1.compareTo(p2);
+  }
+  return 0;
+}
+```

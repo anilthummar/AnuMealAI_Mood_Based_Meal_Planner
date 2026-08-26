@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -37,9 +38,8 @@ class _HomePageState extends State<HomePage> {
     final textTheme = Theme.of(context).textTheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final profileState = context.watch<ProfileCubit>().state;
-    final displayName = profileState.preferences.name.isNotEmpty
-        ? profileState.preferences.name
-        : 'Julia';
+    final prefs = profileState.preferences;
+    final displayName = prefs.name.isNotEmpty ? prefs.name : 'Julia';
 
     final cardBg = isDark ? const Color(0xFF222222) : Colors.white;
     final cardBorder = isDark
@@ -113,7 +113,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ],
                       ),
-                      // Circular Profile Avatar (Default Monogram)
+                      // Circular Profile Avatar
                       GestureDetector(
                         onTap: () => context.go(AppRoutes.profile),
                         child: Container(
@@ -144,18 +144,43 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ],
                           ),
-                          child: Center(
-                            child: Text(
-                              displayName.isNotEmpty
-                                  ? displayName[0].toUpperCase()
-                                  : 'A',
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white,
-                                letterSpacing: -0.5,
-                              ),
-                            ),
+                          child: ClipOval(
+                            child:
+                                (prefs.avatarPath != null &&
+                                    File(prefs.avatarPath!).existsSync())
+                                ? Image.file(
+                                    File(prefs.avatarPath!),
+                                    width: 48,
+                                    height: 48,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (ctx, error, stackTrace) =>
+                                        Center(
+                                          child: Text(
+                                            displayName.isNotEmpty
+                                                ? displayName[0].toUpperCase()
+                                                : 'A',
+                                            style: const TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.w900,
+                                              color: Colors.white,
+                                              letterSpacing: -0.5,
+                                            ),
+                                          ),
+                                        ),
+                                  )
+                                : Center(
+                                    child: Text(
+                                      displayName.isNotEmpty
+                                          ? displayName[0].toUpperCase()
+                                          : 'A',
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w900,
+                                        color: Colors.white,
+                                        letterSpacing: -0.5,
+                                      ),
+                                    ),
+                                  ),
                           ),
                         ),
                       ),

@@ -15,17 +15,21 @@ class ProfileCubit extends Cubit<ProfileState> {
       final prefs = await profileRepository.getPreferences();
       final meals = await profileRepository.getMealsCookedCount();
       final streak = await profileRepository.getCookingStreakDays();
-      emit(state.copyWith(
-        status: ProfileStatus.loaded,
-        preferences: prefs,
-        mealsCooked: meals,
-        cookingStreak: streak,
-      ));
+      emit(
+        state.copyWith(
+          status: ProfileStatus.loaded,
+          preferences: prefs,
+          mealsCooked: meals,
+          cookingStreak: streak,
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(
-        status: ProfileStatus.error,
-        errorMessage: 'Failed to load profile settings',
-      ));
+      emit(
+        state.copyWith(
+          status: ProfileStatus.error,
+          errorMessage: 'Failed to load profile settings',
+        ),
+      );
     }
   }
 
@@ -35,15 +39,27 @@ class ProfileCubit extends Cubit<ProfileState> {
       await profileRepository.savePreferences(updated);
       emit(state.copyWith(status: ProfileStatus.loaded));
     } catch (e) {
-      emit(state.copyWith(
-        status: ProfileStatus.error,
-        errorMessage: 'Failed to save preferences',
-      ));
+      emit(
+        state.copyWith(
+          status: ProfileStatus.error,
+          errorMessage: 'Failed to save preferences',
+        ),
+      );
     }
   }
 
   Future<void> updateName(String name) async {
     final updated = state.preferences.copyWith(name: name.trim());
+    await updatePreferences(updated);
+  }
+
+  Future<void> updateAvatar(String path) async {
+    final updated = state.preferences.copyWith(avatarPath: path);
+    await updatePreferences(updated);
+  }
+
+  Future<void> removeAvatar() async {
+    final updated = state.preferences.copyWith(clearAvatar: true);
     await updatePreferences(updated);
   }
 
@@ -54,7 +70,9 @@ class ProfileCubit extends Cubit<ProfileState> {
     } else {
       list.add(item);
     }
-    await updatePreferences(state.preferences.copyWith(dietaryRestrictions: list));
+    await updatePreferences(
+      state.preferences.copyWith(dietaryRestrictions: list),
+    );
   }
 
   Future<void> toggleCuisine(String cuisine) async {
@@ -72,7 +90,9 @@ class ProfileCubit extends Cubit<ProfileState> {
   }
 
   Future<void> setCookingTime(int minutes) async {
-    await updatePreferences(state.preferences.copyWith(typicalCookingTimeMinutes: minutes));
+    await updatePreferences(
+      state.preferences.copyWith(typicalCookingTimeMinutes: minutes),
+    );
   }
 
   Future<void> recordMealCooked() async {
