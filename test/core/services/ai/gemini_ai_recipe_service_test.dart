@@ -35,7 +35,6 @@ void main() {
   setUp(() {
     mockDio = MockDio();
     mockNetworkInfo = MockNetworkInfo();
-    mockRemote = MockRemoteAIRecipeService();
     localGenerator = LocalRecipeGenerator();
     geminiService = GeminiAiRecipeService(
       dio: mockDio,
