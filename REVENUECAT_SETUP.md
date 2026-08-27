@@ -8,8 +8,8 @@
 
 | Property | Value | Notes |
 |---|---|---|
-| **Android API Key** | `goog_HcIJqcEpkSzgUbaFzaNwNrXyqqO` | Configured in `lib/core/constants/app_config.dart` |
-| **iOS / Test API Key** | `test_GRcIzLgwSeOerbbBzAMMHbWyXhX` | Configured in `lib/core/constants/app_config.dart` |
+| **Android API Key** | `YOUR_REVENUECAT_ANDROID_KEY` (via Remote Config) | Managed in Firebase Remote Config & `AppConfig` |
+| **iOS / Test API Key** | `YOUR_REVENUECAT_IOS_KEY` (via Remote Config) | Managed in Firebase Remote Config & `AppConfig` |
 | **Entitlement Identifier** | `anumealai_pro` | Entitlement Name: **AnuMealAI Pro** |
 | **Default Offering** | `default` | Contains Monthly and Yearly packages |
 | **Monthly Package / Product** | `monthly` | Standard Monthly Subscription |
@@ -70,7 +70,7 @@ RevenueCat SDK (purchases_flutter + purchases_ui_flutter)
 ```dart
 await sl<RevenueCatDataSource>().initialize();
 ```
-* Configures `Purchases` with API key `test_GRcIzLgwSeOerbbBzAMMHbWyXhX`.
+* Configures `Purchases` with API key dynamically loaded from Firebase Remote Config.
 * Sets log level (`LogLevel.debug` in development).
 * Registers real-time `CustomerInfoUpdateListener`.
 
