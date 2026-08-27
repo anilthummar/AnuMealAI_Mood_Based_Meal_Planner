@@ -99,7 +99,9 @@ Future<void> initDependencyInjection() async {
 
   sl.registerLazySingleton<CrashlyticsService>(
     () => sl<FirebaseService>().crashlytics != null
-        ? FirebaseCrashlyticsService(crashlytics: sl<FirebaseService>().crashlytics!)
+        ? FirebaseCrashlyticsService(
+            crashlytics: sl<FirebaseService>().crashlytics!,
+          )
         : const ConsoleCrashlyticsService(),
   );
 
@@ -114,7 +116,8 @@ Future<void> initDependencyInjection() async {
     () => RemoteAIRecipeService(sl()),
   );
   sl.registerLazySingleton<AIRecipeService>(
-    () => ResilientAIRecipeService(remote: sl(), local: sl(), networkInfo: sl()),
+    () =>
+        ResilientAIRecipeService(remote: sl(), local: sl(), networkInfo: sl()),
   );
 
   // 2. DataSources
@@ -122,6 +125,7 @@ Future<void> initDependencyInjection() async {
   sl.registerLazySingleton<AuthRemoteDataSource>(
     () => FirebaseAuthRemoteDataSource(
       firebaseAuth: sl<FirebaseService>().auth,
+      firestore: sl<FirebaseService>().firestore,
       prefs: sl(),
     ),
   );
@@ -146,7 +150,8 @@ Future<void> initDependencyInjection() async {
     () => FavoritesLocalDataSource(box: Hive.box<Map>(HiveBoxes.favorites)),
   );
   sl.registerLazySingleton<ShoppingListLocalDataSource>(
-    () => ShoppingListLocalDataSource(box: Hive.box<Map>(HiveBoxes.shoppingList)),
+    () =>
+        ShoppingListLocalDataSource(box: Hive.box<Map>(HiveBoxes.shoppingList)),
   );
   sl.registerLazySingleton<MealPlannerLocalDataSource>(
     () => MealPlannerLocalDataSource(box: Hive.box<Map>(HiveBoxes.mealPlans)),

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/services/url_launcher_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -68,9 +69,17 @@ class _RegisterPageState extends State<RegisterPage> {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go(AppRoutes.login);
+            }
+          },
         ),
       ),
       body: BlocConsumer<AuthCubit, AuthState>(
@@ -106,9 +115,39 @@ class _RegisterPageState extends State<RegisterPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      // Brand Avatar
+                      Center(
+                        child: Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: AppColors.golden,
+                              width: 2.0,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.golden.withValues(alpha: 0.35),
+                                blurRadius: 20,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                            image: const DecorationImage(
+                              image: AssetImage(
+                                'assets/images/app_icon_transparent.png',
+                              ),
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+
                       // Header Title
                       Text(
                         'Create your Account',
+                        textAlign: TextAlign.center,
                         style: textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.w900,
                           letterSpacing: -0.5,
@@ -117,6 +156,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       const SizedBox(height: AppSpacing.xs),
                       Text(
                         'Sync your pantry, meal plans, and personalized recipes across all devices.',
+                        textAlign: TextAlign.center,
                         style: textTheme.bodyMedium?.copyWith(
                           color: scheme.onSurfaceVariant,
                         ),
@@ -214,7 +254,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                   ),
                                   InkWell(
                                     onTap: () =>
-                                        context.push(AppRoutes.termsOfUse),
+                                        UrlLauncherService.openTermsOfUse(),
                                     child: Text(
                                       'Terms of Use',
                                       style: TextStyle(
@@ -236,7 +276,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                   ),
                                   InkWell(
                                     onTap: () =>
-                                        context.push(AppRoutes.privacyPolicy),
+                                        UrlLauncherService.openPrivacyPolicy(),
                                     child: Text(
                                       'Privacy Policy',
                                       style: TextStyle(

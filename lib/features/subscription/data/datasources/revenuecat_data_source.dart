@@ -276,9 +276,12 @@ class RevenueCatDataSource {
   Future<void> logOut() async {
     if (!_isConfigured) return;
     try {
-      final customerInfo = await Purchases.logOut();
-      _handleCustomerInfo(customerInfo);
-      debugPrint('[RevenueCat] Logged out user session.');
+      final isAnon = await Purchases.isAnonymous;
+      if (!isAnon) {
+        final customerInfo = await Purchases.logOut();
+        _handleCustomerInfo(customerInfo);
+        debugPrint('[RevenueCat] Logged out user session.');
+      }
     } catch (e) {
       debugPrint('[RevenueCat] Error logging out user session: $e');
     }

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/router/app_routes.dart';
+import '../../../../core/services/url_launcher_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_bottom_sheet.dart';
@@ -61,6 +63,8 @@ class _PaywallPageState extends State<PaywallPage> {
       builder: (context, state) {
         final cubit = context.read<SubscriptionCubit>();
         final isPremium = state.isPremium;
+        final isPromoActive =
+            state.subscription.activeOfferingId == 'shipaton_judge_trial';
 
         return Scaffold(
           body: SafeArea(
@@ -134,13 +138,22 @@ class _PaywallPageState extends State<PaywallPage> {
                           color: isDark
                               ? const Color(0xFF262015)
                               : const Color(0xFFFEF9EE),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(24),
                           border: Border.all(
                             color: isDark
-                                ? AppColors.butterGold
+                                ? AppColors.butterGold.withValues(alpha: 0.8)
                                 : AppColors.primaryGold,
                             width: 1.5,
                           ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primaryGold.withValues(
+                                alpha: isDark ? 0.2 : 0.1,
+                              ),
+                              blurRadius: 16,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
                         child: Column(
                           children: [
@@ -151,31 +164,53 @@ class _PaywallPageState extends State<PaywallPage> {
                                   children: [
                                     const Text(
                                       '⭐',
-                                      style: TextStyle(fontSize: 16),
+                                      style: TextStyle(fontSize: 18),
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
                                       'Membership Status',
-                                      style: textTheme.titleSmall?.copyWith(
-                                        fontWeight: FontWeight.w800,
+                                      style: textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w900,
+                                        letterSpacing: -0.2,
                                       ),
                                     ),
                                   ],
                                 ),
                                 Container(
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 4,
+                                    horizontal: 12,
+                                    vertical: 5,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF2E7D32),
+                                    gradient: LinearGradient(
+                                      colors: isPromoActive
+                                          ? [
+                                              AppColors.golden,
+                                              AppColors.terracotta,
+                                            ]
+                                          : [
+                                              const Color(0xFF2E7D32),
+                                              const Color(0xFF1B5E20),
+                                            ],
+                                    ),
                                     borderRadius: BorderRadius.circular(
                                       AppSpacing.radiusPill,
                                     ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color:
+                                            (isPromoActive
+                                                    ? AppColors.golden
+                                                    : const Color(0xFF2E7D32))
+                                                .withValues(alpha: 0.3),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
                                   ),
-                                  child: const Text(
-                                    'ACTIVE ✨',
-                                    style: TextStyle(
+                                  child: Text(
+                                    isPromoActive ? 'PROMO PASS ✨' : 'ACTIVE ✨',
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 11,
                                       fontWeight: FontWeight.w900,
@@ -185,6 +220,48 @@ class _PaywallPageState extends State<PaywallPage> {
                                 ),
                               ],
                             ),
+                            if (isPromoActive) ...[
+                              const SizedBox(height: AppSpacing.sm),
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.golden.withValues(
+                                    alpha: 0.12,
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: AppColors.golden.withValues(
+                                      alpha: 0.25,
+                                    ),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Text(
+                                      '🎁',
+                                      style: TextStyle(fontSize: 14),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'Active via Promo Pass: Unlimited AI, meal plans & full features enabled.',
+                                        style: textTheme.bodySmall?.copyWith(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 11.5,
+                                          color: isDark
+                                              ? AppColors.butterGold
+                                              : AppColors.primaryGoldDark,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                             const SizedBox(height: AppSpacing.sm),
                             const Divider(),
                             const SizedBox(height: AppSpacing.sm),
@@ -238,7 +315,8 @@ class _PaywallPageState extends State<PaywallPage> {
                           label: const Text(
                             'Manage Subscription (Customer Center)',
                           ),
-                          onPressed: () => cubit.presentCustomerCenter(),
+                          onPressed: () =>
+                              _handleCustomerCenter(context, state),
                         ),
                       ),
                       Center(
@@ -510,18 +588,61 @@ class _PaywallPageState extends State<PaywallPage> {
                         ],
                       ),
 
-                      // Legal Footnote
+                      // Legal Footnote & Links
                       Padding(
                         padding: const EdgeInsets.only(top: AppSpacing.sm),
-                        child: Text(
-                          'Recurring billing. Cancel anytime in App Store / Google Play settings at least 24 hours before renewal.',
-                          textAlign: TextAlign.center,
-                          style: textTheme.bodySmall?.copyWith(
-                            color: scheme.onSurfaceVariant.withValues(
-                              alpha: 0.8,
+                        child: Column(
+                          children: [
+                            Text(
+                              'Recurring billing. Cancel anytime in App Store / Google Play settings at least 24 hours before renewal.',
+                              textAlign: TextAlign.center,
+                              style: textTheme.bodySmall?.copyWith(
+                                color: scheme.onSurfaceVariant.withValues(
+                                  alpha: 0.8,
+                                ),
+                                fontSize: 11,
+                              ),
                             ),
-                            fontSize: 11,
-                          ),
+                            const SizedBox(height: 6),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                InkWell(
+                                  onTap: () =>
+                                      UrlLauncherService.openTermsOfUse(),
+                                  child: Text(
+                                    'Terms of Use',
+                                    style: textTheme.bodySmall?.copyWith(
+                                      color: scheme.primary,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 11,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  '  •  ',
+                                  style: textTheme.bodySmall?.copyWith(
+                                    color: scheme.onSurfaceVariant,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                                InkWell(
+                                  onTap: () =>
+                                      UrlLauncherService.openPrivacyPolicy(),
+                                  child: Text(
+                                    'Privacy Policy',
+                                    style: textTheme.bodySmall?.copyWith(
+                                      color: scheme.primary,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 11,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -596,6 +717,95 @@ class _PaywallPageState extends State<PaywallPage> {
         ],
       ),
     );
+  }
+
+  void _handleCustomerCenter(BuildContext context, SubscriptionState state) {
+    final cubit = context.read<SubscriptionCubit>();
+    final isPromoActive =
+        state.subscription.activeOfferingId == 'shipaton_judge_trial';
+
+    if (isPromoActive) {
+      showDialog(
+        context: context,
+        builder: (dialogCtx) {
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            title: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.golden.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.card_membership_rounded,
+                    color: AppColors.golden,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text(
+                    'Active Promo Pass',
+                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
+                  ),
+                ),
+              ],
+            ),
+            content: const Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Your AnuMealAI Pro access is currently active via a Promo Pass / Reviewer Code with full premium capabilities enabled.',
+                  style: TextStyle(height: 1.4, fontSize: 13.5),
+                ),
+                SizedBox(height: 12),
+                Text(
+                  'Store-level billing management in the Customer Center applies when you have an active Google Play or App Store paid subscription.',
+                  style: TextStyle(
+                    height: 1.35,
+                    fontSize: 12.5,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogCtx).pop(),
+                child: const Text('Close'),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isDark
+                      ? AppColors.butterGold
+                      : AppColors.primaryGold,
+                  foregroundColor: const Color(0xFF141414),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(dialogCtx).pop();
+                  cubit.presentCustomerCenter();
+                },
+                child: const Text(
+                  'Open Customer Center',
+                  style: TextStyle(fontWeight: FontWeight.w800),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      cubit.presentCustomerCenter();
+    }
   }
 }
 

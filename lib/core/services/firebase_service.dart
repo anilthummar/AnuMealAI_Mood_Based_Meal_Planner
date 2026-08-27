@@ -6,6 +6,8 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../firebase_options.dart';
+
 /// Centralized Enterprise Firebase integration service (§4, §5).
 /// Provides safe initialization and access to Firebase Core, Auth,
 /// Cloud Firestore, Remote Config, Analytics, and Crashlytics.
@@ -27,31 +29,41 @@ class FirebaseService {
 
   Future<void> initialize() async {
     try {
-      await Firebase.initializeApp();
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
       _isInitialized = true;
 
       try {
         _auth = FirebaseAuth.instance;
       } catch (e) {
-        debugPrint('[FirebaseService] FirebaseAuth initialization fallback: $e');
+        debugPrint(
+          '[FirebaseService] FirebaseAuth initialization fallback: $e',
+        );
       }
 
       try {
         _firestore = FirebaseFirestore.instance;
       } catch (e) {
-        debugPrint('[FirebaseService] FirebaseFirestore initialization fallback: $e');
+        debugPrint(
+          '[FirebaseService] FirebaseFirestore initialization fallback: $e',
+        );
       }
 
       try {
         _remoteConfig = FirebaseRemoteConfig.instance;
       } catch (e) {
-        debugPrint('[FirebaseService] FirebaseRemoteConfig initialization fallback: $e');
+        debugPrint(
+          '[FirebaseService] FirebaseRemoteConfig initialization fallback: $e',
+        );
       }
 
       try {
         _analytics = FirebaseAnalytics.instance;
       } catch (e) {
-        debugPrint('[FirebaseService] FirebaseAnalytics initialization fallback: $e');
+        debugPrint(
+          '[FirebaseService] FirebaseAnalytics initialization fallback: $e',
+        );
       }
 
       try {
@@ -64,13 +76,17 @@ class FirebaseService {
           };
         }
       } catch (e) {
-        debugPrint('[FirebaseService] FirebaseCrashlytics initialization fallback: $e');
+        debugPrint(
+          '[FirebaseService] FirebaseCrashlytics initialization fallback: $e',
+        );
       }
 
       debugPrint('[FirebaseService] Firebase suite initialized successfully.');
     } catch (e) {
       _isInitialized = false;
-      debugPrint('[FirebaseService] Firebase core initialization skipped or running offline: $e');
+      debugPrint(
+        '[FirebaseService] Firebase core initialization skipped or running offline: $e',
+      );
     }
   }
 

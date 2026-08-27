@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/constants/hive_boxes.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../domain/entities/user_entity.dart';
 
@@ -26,6 +29,7 @@ abstract class AuthRemoteDataSource {
 
 class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
   final FirebaseAuth? firebaseAuth;
+  final FirebaseFirestore? firestore;
   final SharedPreferences prefs;
   final StreamController<UserEntity?> _fallbackController =
       StreamController<UserEntity?>.broadcast();
@@ -33,7 +37,11 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
   static const String _guestKey = 'auth_is_guest';
   static const String _localUserKey = 'auth_local_user_data';
 
-  FirebaseAuthRemoteDataSource({this.firebaseAuth, required this.prefs});
+  FirebaseAuthRemoteDataSource({
+    this.firebaseAuth,
+    this.firestore,
+    required this.prefs,
+  });
 
   @override
   Stream<UserEntity?> get authStateChanges {
@@ -82,8 +90,25 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
         password: password,
       );
 
-      if (displayName != null && displayName.trim().isNotEmpty) {
-        await credential.user?.updateDisplayName(displayName.trim());
+      final trimmedName = displayName?.trim();
+      if (trimmedName != null && trimmedName.isNotEmpty) {
+        await credential.user?.updateDisplayName(trimmedName);
+      }
+
+      // Sync user profile to Firestore
+      if (firestore != null && credential.user != null) {
+        try {
+          await firestore!.collection('users').doc(credential.user!.uid).set({
+            'uid': credential.user!.uid,
+            'email': email.trim(),
+            'displayName': trimmedName ?? 'Chef',
+            'createdAt': FieldValue.serverTimestamp(),
+            'updatedAt': FieldValue.serverTimestamp(),
+            'lastLoginAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+        } catch (e) {
+          debugPrint('[Auth] Firestore user document sync note: $e');
+        }
       }
 
       final user = _mapFirebaseUser(credential.user);
@@ -121,6 +146,19 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
         email: email.trim(),
         password: password,
       );
+
+      // Update last login in Firestore
+      if (firestore != null && credential.user != null) {
+        try {
+          await firestore!.collection('users').doc(credential.user!.uid).set({
+            'lastLoginAt': FieldValue.serverTimestamp(),
+            'email': email.trim(),
+          }, SetOptions(merge: true));
+        } catch (e) {
+          debugPrint('[Auth] Firestore lastLoginAt update note: $e');
+        }
+      }
+
       final user = _mapFirebaseUser(credential.user);
       if (user == null) {
         throw const ServerException('Failed to authenticate user.');
@@ -144,6 +182,20 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
 
     try {
       final credential = await firebaseAuth!.signInAnonymously();
+
+      if (firestore != null && credential.user != null) {
+        try {
+          await firestore!.collection('users').doc(credential.user!.uid).set({
+            'uid': credential.user!.uid,
+            'isAnonymous': true,
+            'createdAt': FieldValue.serverTimestamp(),
+            'lastLoginAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+        } catch (e) {
+          debugPrint('[Auth] Firestore guest sync note: $e');
+        }
+      }
+
       final user = _mapFirebaseUser(credential.user);
       if (user == null) {
         throw const ServerException('Failed to create guest session.');
@@ -190,8 +242,8 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
   @override
   Future<void> deleteAccount({String? password}) async {
     if (firebaseAuth != null && firebaseAuth!.currentUser != null) {
+      final user = firebaseAuth!.currentUser!;
       try {
-        final user = firebaseAuth!.currentUser!;
         if (password != null && user.email != null) {
           final cred = EmailAuthProvider.credential(
             email: user.email!,
@@ -199,11 +251,58 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
           );
           await user.reauthenticateWithCredential(cred);
         }
+
+        // 1. Delete user data and all subcollections from Firestore
+        if (firestore != null) {
+          try {
+            final userDoc = firestore!.collection('users').doc(user.uid);
+            final subcollections = [
+              'favorites',
+              'pantry',
+              'history',
+              'preferences',
+              'shoppingList',
+              'feedback',
+            ];
+            for (final sub in subcollections) {
+              final subDocs = await userDoc.collection(sub).get();
+              for (final doc in subDocs.docs) {
+                await doc.reference.delete();
+              }
+            }
+            await userDoc.delete();
+          } catch (e) {
+            debugPrint('[Auth] Firestore user data wipe note: $e');
+          }
+        }
+
+        // 2. Delete user in Firebase Authentication
         await user.delete();
       } on FirebaseAuthException catch (e) {
         throw ServerException(_mapFirebaseAuthError(e));
       }
     }
+
+    // 3. Clear all local Hive boxes
+    for (final boxName in HiveBoxes.all) {
+      try {
+        if (Hive.isBoxOpen(boxName)) {
+          await Hive.box<Map>(boxName).clear();
+        }
+      } catch (e) {
+        debugPrint('[Auth] Local box clear warning for $boxName: $e');
+      }
+    }
+
+    // 4. Wipe local user profile and preference caches
+    await prefs.remove('user_preferences');
+    await prefs.remove('user_profile_name');
+    await prefs.remove('user_avatar_path');
+    await prefs.remove('cooking_streak');
+    await prefs.remove('last_cooked_date');
+    await prefs.remove('meals_cooked_count');
+    await prefs.remove('onboarding_completed');
+
     await signOut();
   }
 

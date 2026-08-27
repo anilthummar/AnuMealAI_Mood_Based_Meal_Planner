@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-
+import '../../../../core/services/url_launcher_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 
@@ -10,6 +8,7 @@ class LegalDocumentPage extends StatelessWidget {
   final String version;
   final String effectiveDate;
   final List<LegalSection> sections;
+  final String? externalUrl;
 
   const LegalDocumentPage({
     super.key,
@@ -17,6 +16,7 @@ class LegalDocumentPage extends StatelessWidget {
     required this.version,
     required this.effectiveDate,
     required this.sections,
+    this.externalUrl,
   });
 
   @override
@@ -30,8 +30,22 @@ class LegalDocumentPage extends StatelessWidget {
         title: Text(title),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/');
+            }
+          },
         ),
+        actions: [
+          if (externalUrl != null)
+            IconButton(
+              icon: const Icon(Icons.open_in_browser_rounded),
+              tooltip: 'Open in Browser',
+              onPressed: () => UrlLauncherService.openUrl(externalUrl!),
+            ),
+        ],
       ),
       body: SafeArea(
         child: ListView(

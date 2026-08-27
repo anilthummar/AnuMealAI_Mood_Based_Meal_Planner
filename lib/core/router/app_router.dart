@@ -20,6 +20,7 @@ import '../../features/recipes/presentation/pages/recipes_page.dart';
 import '../../features/remote_config/presentation/pages/maintenance_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/shopping_list/presentation/pages/shopping_list_page.dart';
+import '../../features/splash/presentation/pages/splash_page.dart';
 import '../../features/subscription/presentation/pages/paywall_page.dart';
 import '../widgets/luxury_bottom_nav_bar.dart';
 import 'app_routes.dart';
@@ -33,10 +34,13 @@ class AppRouter {
   static GoRouter createRouter({required bool isOnboardingComplete}) {
     return GoRouter(
       navigatorKey: _rootNavigatorKey,
-      initialLocation: isOnboardingComplete
-          ? AppRoutes.home
-          : AppRoutes.onboarding,
+      initialLocation: AppRoutes.splash,
       routes: [
+        GoRoute(
+          parentNavigatorKey: _rootNavigatorKey,
+          path: AppRoutes.splash,
+          builder: (context, state) => const SplashPage(),
+        ),
         GoRoute(
           path: AppRoutes.onboarding,
           builder: (context, state) => const OnboardingPage(),

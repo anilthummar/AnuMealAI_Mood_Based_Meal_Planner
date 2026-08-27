@@ -15,7 +15,7 @@ class AppConfig {
   /// NEVER put a RevenueCat *secret* key here — only the public app key.
   static const String revenueCatApiKeyAndroid = String.fromEnvironment(
     'REVENUECAT_API_KEY_ANDROID',
-    defaultValue: 'test_GRcIzLgwSeOerbbBzAMMHbWyXhX',
+    defaultValue: 'goog_HcIJqcEpkSzgUbaFzaNwNrXyqqO',
   );
   static const String revenueCatApiKeyIos = String.fromEnvironment(
     'REVENUECAT_API_KEY_IOS',
@@ -40,6 +40,12 @@ class AppConfig {
   static const String appName = 'AnuMealAI';
   static const String appTagline =
       'Your mood. Your ingredients. Your perfect meal.';
+
+  /// Public policy links (§41, §75)
+  static const String termsOfUseUrl =
+      'https://sites.google.com/view/anumealai-terms-of-use/home';
+  static const String privacyPolicyUrl =
+      'https://sites.google.com/view/anumealai-privacy-policy/home';
 }
 
 AppEnvironment _environmentFromName(String name) => switch (name) {

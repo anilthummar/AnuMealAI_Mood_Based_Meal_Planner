@@ -233,13 +233,13 @@ class _OnboardingPageState extends State<OnboardingPage> {
           const SizedBox(height: AppSpacing.sm),
           // Culinary Hero Avatar / Badge
           Container(
-            width: 124,
-            height: 124,
+            width: 130,
+            height: 130,
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(28),
               border: Border.all(
                 color: isDark ? AppColors.butterGold : AppColors.primaryGold,
-                width: 3.0,
+                width: 2.5,
               ),
               boxShadow: [
                 BoxShadow(
@@ -250,10 +250,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 ),
               ],
               image: const DecorationImage(
-                image: NetworkImage(
-                  'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80',
-                ),
-                fit: BoxFit.cover,
+                image: AssetImage('assets/images/app_icon_transparent.png'),
+                fit: BoxFit.contain,
               ),
             ),
           ),
@@ -1387,7 +1385,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   context,
                   emoji: '🥗',
                   label: 'Dietary',
-                  value: prefs.dietaryRestrictions.isEmpty ? 'No restrictions' : '',
+                  value: prefs.dietaryRestrictions.isEmpty
+                      ? 'No restrictions'
+                      : '',
                   tags: prefs.dietaryRestrictions.isNotEmpty
                       ? prefs.dietaryRestrictions
                       : null,
@@ -1480,9 +1480,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     color: isDark
                         ? const Color(0xFF282828)
                         : scheme.surfaceContainerHighest.withValues(alpha: 0.7),
-                    borderRadius: BorderRadius.circular(
-                      AppSpacing.radiusPill,
-                    ),
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusPill),
                     border: Border.all(
                       color: isDark
                           ? const Color(0xFF383838)

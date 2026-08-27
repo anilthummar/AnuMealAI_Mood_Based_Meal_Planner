@@ -19,6 +19,7 @@ import '../../../favorites/presentation/bloc/favorites_cubit.dart';
 import '../../../ingredients/presentation/bloc/ingredient_cubit.dart';
 import '../../../mood/presentation/bloc/mood_cubit.dart';
 import '../../../profile/presentation/bloc/profile_cubit.dart';
+import '../../../subscription/presentation/bloc/subscription_cubit.dart';
 import '../bloc/recipe_cubit.dart';
 import '../bloc/recipe_state.dart';
 
@@ -62,14 +63,16 @@ class _RecipesPageState extends State<RecipesPage> {
     final textTheme = Theme.of(context).textTheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final featureAccess = sl<FeatureAccessService>();
-    final isPremium = featureAccess.isPremium;
-    final remainingGenerations = featureAccess
-        .remainingRecipeGenerationsToday();
+    final subState = context.watch<SubscriptionCubit>().state;
+    final isPremium = subState.isPremium;
+    final remainingGenerations = isPremium
+        ? -1
+        : featureAccess.remainingRecipeGenerationsToday();
 
     return BlocConsumer<RecipeCubit, RecipeState>(
       listener: (context, state) {
-        if (state.errorMessage == 'DAILY_LIMIT_REACHED') {
-          // Don't auto-redirect, let the user read the informative limit card
+        if (state.errorMessage == 'DAILY_LIMIT_REACHED' && isPremium) {
+          context.read<RecipeCubit>().clearError();
         }
       },
       builder: (context, state) {
@@ -393,8 +396,19 @@ class _RecipesPageState extends State<RecipesPage> {
                 if (state.status == RecipeStatus.loading) ...[
                   const RecipeGridSkeleton(count: 4),
                 ] else if (state.status == RecipeStatus.error) ...[
-                  if (state.errorMessage == 'DAILY_LIMIT_REACHED')
+                  if (state.errorMessage == 'DAILY_LIMIT_REACHED' &&
+                      !isPremium &&
+                      !featureAccess.canGenerateRecipe())
                     _buildDailyLimitCard(context, isDark, textTheme, scheme)
+                  else if (state.errorMessage == 'DAILY_LIMIT_REACHED')
+                    EmptyState(
+                      emoji: '🍳',
+                      title: 'Ready to Cook!',
+                      message:
+                          'Tap "Generate Recipes ✨" above to discover dishes customized to your pantry and ${moodState.selectedMood.name.toLowerCase()} mood.',
+                      actionLabel: 'Generate Recipes ✨',
+                      onAction: () => _triggerSearch(),
+                    )
                   else
                     ErrorState(
                       title: 'Could Not Generate Recipes',

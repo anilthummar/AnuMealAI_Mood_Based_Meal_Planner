@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/services/url_launcher_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -51,6 +52,20 @@ class _LoginPageState extends State<LoginPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go(AppRoutes.home);
+            }
+          },
+        ),
+      ),
       body: BlocConsumer<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is Authenticated) {
@@ -87,15 +102,14 @@ class _LoginPageState extends State<LoginPage> {
                       // Brand Avatar
                       Center(
                         child: Container(
-                          width: 80,
-                          height: 80,
+                          width: 88,
+                          height: 88,
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [AppColors.golden, AppColors.terracotta],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
+                            borderRadius: BorderRadius.circular(22),
+                            border: Border.all(
+                              color: AppColors.golden,
+                              width: 2.0,
                             ),
-                            shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
                                 color: AppColors.golden.withValues(alpha: 0.35),
@@ -103,9 +117,12 @@ class _LoginPageState extends State<LoginPage> {
                                 offset: const Offset(0, 8),
                               ),
                             ],
-                          ),
-                          child: const Center(
-                            child: Text('🍲', style: TextStyle(fontSize: 38)),
+                            image: const DecorationImage(
+                              image: AssetImage(
+                                'assets/images/app_icon_transparent.png',
+                              ),
+                              fit: BoxFit.contain,
+                            ),
                           ),
                         ),
                       ),
@@ -258,7 +275,7 @@ class _LoginPageState extends State<LoginPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           InkWell(
-                            onTap: () => context.push(AppRoutes.termsOfUse),
+                            onTap: () => UrlLauncherService.openTermsOfUse(),
                             child: Text(
                               'Terms of Use',
                               style: TextStyle(
@@ -283,7 +300,7 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
                           InkWell(
-                            onTap: () => context.push(AppRoutes.privacyPolicy),
+                            onTap: () => UrlLauncherService.openPrivacyPolicy(),
                             child: Text(
                               'Privacy Policy',
                               style: TextStyle(

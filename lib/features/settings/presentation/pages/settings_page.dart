@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/services/url_launcher_service.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_snackbar.dart';
@@ -187,15 +188,15 @@ class SettingsPage extends StatelessWidget {
                     ListTile(
                       contentPadding: EdgeInsets.zero,
                       title: const Text('Privacy Policy'),
-                      trailing: const Icon(Icons.chevron_right_rounded),
-                      onTap: () => context.push(AppRoutes.privacyPolicy),
+                      trailing: const Icon(Icons.open_in_new_rounded, size: 18),
+                      onTap: () => UrlLauncherService.openPrivacyPolicy(),
                     ),
                     const Divider(),
                     ListTile(
                       contentPadding: EdgeInsets.zero,
                       title: const Text('Terms of Use'),
-                      trailing: const Icon(Icons.chevron_right_rounded),
-                      onTap: () => context.push(AppRoutes.termsOfUse),
+                      trailing: const Icon(Icons.open_in_new_rounded, size: 18),
+                      onTap: () => UrlLauncherService.openTermsOfUse(),
                     ),
                   ],
                 ),

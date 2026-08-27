@@ -46,14 +46,22 @@ class RecipeCubit extends Cubit<RecipeState> {
     List<String> cuisinePreferences = const [],
   }) async {
     if (!featureAccess.canGenerateRecipe()) {
-      emit(state.copyWith(
-        status: RecipeStatus.error,
-        errorMessage: 'DAILY_LIMIT_REACHED',
-      ));
+      emit(
+        state.copyWith(
+          status: RecipeStatus.error,
+          errorMessage: 'DAILY_LIMIT_REACHED',
+        ),
+      );
       return false;
     }
 
-    emit(state.copyWith(status: RecipeStatus.loading, isGenerating: true, errorMessage: null));
+    emit(
+      state.copyWith(
+        status: RecipeStatus.loading,
+        isGenerating: true,
+        errorMessage: null,
+      ),
+    );
     try {
       final recipes = await recipeRepository.generateRecipes(
         moodId: moodId,
@@ -68,18 +76,23 @@ class RecipeCubit extends Cubit<RecipeState> {
       await featureAccess.recordRecipeGeneration();
       await analytics.logRecipeGenerated(moodId, availableIngredients.length);
 
-      emit(state.copyWith(
-        status: RecipeStatus.loaded,
-        isGenerating: false,
-        generatedRecipes: recipes,
-      ));
+      emit(
+        state.copyWith(
+          status: RecipeStatus.loaded,
+          isGenerating: false,
+          generatedRecipes: recipes,
+        ),
+      );
       return true;
     } catch (e) {
-      emit(state.copyWith(
-        status: RecipeStatus.error,
-        isGenerating: false,
-        errorMessage: 'Unable to generate recipes right now. Please try again.',
-      ));
+      emit(
+        state.copyWith(
+          status: RecipeStatus.error,
+          isGenerating: false,
+          errorMessage:
+              'Unable to generate recipes right now. Please try again.',
+        ),
+      );
       return false;
     }
   }
@@ -90,15 +103,24 @@ class RecipeCubit extends Cubit<RecipeState> {
       final recipe = await recipeRepository.getRecipeById(id);
       if (recipe != null) {
         await analytics.logRecipeViewed(recipe.id, recipe.title);
-        emit(state.copyWith(status: RecipeStatus.loaded, selectedRecipe: recipe));
+        emit(
+          state.copyWith(status: RecipeStatus.loaded, selectedRecipe: recipe),
+        );
       } else {
-        emit(state.copyWith(
-          status: RecipeStatus.error,
-          errorMessage: 'Recipe not found',
-        ));
+        emit(
+          state.copyWith(
+            status: RecipeStatus.error,
+            errorMessage: 'Recipe not found',
+          ),
+        );
       }
     } catch (e) {
-      emit(state.copyWith(status: RecipeStatus.error, errorMessage: 'Failed to load recipe'));
+      emit(
+        state.copyWith(
+          status: RecipeStatus.error,
+          errorMessage: 'Failed to load recipe',
+        ),
+      );
     }
   }
 
@@ -110,6 +132,12 @@ class RecipeCubit extends Cubit<RecipeState> {
   Future<void> markRecipeCooked(String id) async {
     await recipeRepository.markRecipeCooked(id);
     await analytics.logRecipeCooked(id);
+  }
+
+  void clearError() {
+    if (state.status == RecipeStatus.error) {
+      emit(state.copyWith(status: RecipeStatus.initial, errorMessage: null));
+    }
   }
 
   Future<void> rateRecipe(String id, String rating) async {

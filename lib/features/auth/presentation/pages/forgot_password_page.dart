@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/router/app_routes.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snackbar.dart';
@@ -41,13 +43,20 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go(AppRoutes.login);
+            }
+          },
         ),
       ),
       body: BlocConsumer<AuthCubit, AuthState>(
@@ -84,16 +93,25 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Container(
-                            width: 72,
-                            height: 72,
+                            width: 88,
+                            height: 88,
                             decoration: BoxDecoration(
-                              color: isDark
-                                  ? const Color(0xFF2C2614)
-                                  : const Color(0xFFFEF3C7),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Center(
-                              child: Text('📬', style: TextStyle(fontSize: 34)),
+                              borderRadius: BorderRadius.circular(22),
+                              border: Border.all(
+                                color: AppColors.golden,
+                                width: 2.0,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.golden.withValues(alpha: 0.35),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                              image: const DecorationImage(
+                                image: AssetImage('assets/images/app_icon_transparent.png'),
+                                fit: BoxFit.contain,
+                              ),
                             ),
                           ),
                           const SizedBox(height: AppSpacing.lg),
@@ -114,7 +132,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           const SizedBox(height: AppSpacing.xl),
                           AppButton(
                             label: 'Back to Sign In',
-                            onPressed: () => context.pop(),
+                            onPressed: () {
+                              if (context.canPop()) {
+                                context.pop();
+                              } else {
+                                context.go(AppRoutes.login);
+                              }
+                            },
                           ),
                         ],
                       )
@@ -123,8 +147,36 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
+                            // Brand Avatar
+                            Center(
+                              child: Container(
+                                width: 88,
+                                height: 88,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(22),
+                                  border: Border.all(
+                                    color: AppColors.golden,
+                                    width: 2.0,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppColors.golden.withValues(alpha: 0.35),
+                                      blurRadius: 20,
+                                      offset: const Offset(0, 8),
+                                    ),
+                                  ],
+                                  image: const DecorationImage(
+                                    image: AssetImage('assets/images/app_icon_transparent.png'),
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.lg),
+
                             Text(
                               'Reset Password',
+                              textAlign: TextAlign.center,
                               style: textTheme.headlineSmall?.copyWith(
                                 fontWeight: FontWeight.w900,
                                 letterSpacing: -0.5,
@@ -133,6 +185,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                             const SizedBox(height: AppSpacing.xs),
                             Text(
                               'Enter your account email and we will send you a link to reset your password.',
+                              textAlign: TextAlign.center,
                               style: textTheme.bodyMedium?.copyWith(
                                 color: scheme.onSurfaceVariant,
                               ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'legal_document_page.dart';
 
 /// Complete In-App Privacy Policy Document (§42, §43, §76).
+/// Strictly aligned with Google Play Developer Policy, Apple App Store Guidelines,
+/// GDPR, and CCPA data privacy frameworks.
 class PrivacyPolicyPage extends StatelessWidget {
   const PrivacyPolicyPage({super.key});
 
@@ -9,55 +11,71 @@ class PrivacyPolicyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return const LegalDocumentPage(
       title: 'Privacy Policy',
-      version: '1.0',
+      version: '1.1',
       effectiveDate: 'August 27, 2026',
       sections: [
         LegalSection(
           heading: '1. Overview & Commitment',
           content:
-              'At AnuMealAI, your culinary preferences, dietary needs, and personal data privacy are paramount. This Privacy Policy details the specific data we collect, how it is used to personalize your meal recommendations, and your control over your data.',
+              'Welcome to AnuMealAI ("we", "our", or "us"). We are deeply committed to protecting your personal privacy. This Privacy Policy details the types of data we collect, how it is handled to provide artificial intelligence-powered culinary planning, how your permissions are used, and your comprehensive rights regarding your personal information.',
         ),
         LegalSection(
           heading: '2. Information We Collect',
           content:
-              'We collect only the data necessary to provide personalized meal planning:\n'
-              '• Account Information: Email address and display name (when creating an account).\n'
-              '• Culinary Profile: Dietary goals, allergies, cuisine preferences, cooking skill level, and prep time preferences.\n'
-              '• Pantry & Meal Data: Ingredients you enter into your pantry, saved favorite recipes, cooked meal history, and custom shopping lists.\n'
-              '• Mood Data: Selected mood preferences used to tailor AI recipe generation.\n'
-              '• Subscription Metadata: Subscription tier status and entitlement identifiers managed through RevenueCat.',
+              'We collect only the minimum information necessary to personalize and optimize your culinary experience:\n\n'
+              '• Account Information: Your email address and chosen display name when creating an account or logging in.\n'
+              '• Culinary Profile & Preferences: Cooking skill level, typical daily prep time targets, preferred cuisines, dietary goals (e.g., Vegan, Vegetarian, Keto), and food allergy restrictions.\n'
+              '• Pantry & Meal Tracking Data: Custom ingredients added to your pantry, saved favorite recipes, weekly planner schedules, custom shopping list items, and cooked meal streak counts.\n'
+              '• Mood & Recipe Prompts: Selected mood preferences used to generate mood-tailored culinary recommendations.\n'
+              '• Subscription Metadata: In-app purchase entitlement status, expiration dates, and subscription tier indicators managed securely via RevenueCat and official platform stores.',
         ),
         LegalSection(
-          heading: '3. Third-Party Services We Use',
+          heading: '3. Device Permissions & How They Are Used',
           content:
-              'We integrate trusted industry-standard service providers strictly for core functionality:\n'
-              '• Firebase Authentication: Secure user account authentication and session restoration.\n'
-              '• Cloud Firestore: Secure cloud synchronization of user preferences, favorites, and pantry items.\n'
-              '• Firebase Remote Config: Remotely managed application configuration, update notifications, and quotas.\n'
-              '• Firebase Analytics: Aggregated usage analytics to improve recipe algorithms and UI usability.\n'
-              '• Firebase Crashlytics: Anonymous crash diagnostics and stability reporting.\n'
-              '• RevenueCat: In-app purchase processing and subscription entitlement verification.\n'
-              '• Apple App Store & Google Play Billing: Native store billing and payment processing.',
+              'AnuMealAI requests explicit device permissions only when required for specific active features:\n\n'
+              '• Camera Permission: Used exclusively when you choose to take a custom profile picture or capture photos of ingredients. We never access your camera without your explicit in-moment action.\n'
+              '• Photo Library / Media Storage: Used to allow you to select existing photos from your device for your avatar. We only access the specific image you select.\n'
+              '• Push Notifications: Used optionally to send daily dinner reminders and helpful meal prep prompts at your scheduled time. You can enable, disable, or adjust notification permissions at any time in app settings.',
         ),
         LegalSection(
-          heading: '4. How Your Data Is Used',
+          heading: '4. Third-Party Services & Data Processors',
           content:
-              'Your data is used solely to generate tailored recipes, synchronize meal plans across your devices, process subscription entitlements, and diagnose technical errors. We do NOT sell or rent your personal data to any third-party advertisers.',
+              'We partner with reputable industry leaders strictly to power core app operations:\n\n'
+              '• Firebase Authentication (Google LLC): Authenticates user accounts, secures sessions, and manages password resets.\n'
+              '• Cloud Firestore (Google LLC): Provides encrypted cloud database storage and cross-device synchronization of user preferences, recipes, and pantry items.\n'
+              '• Firebase Analytics & Crashlytics (Google LLC): Collects anonymous crash telemetry and aggregated usage patterns to maintain application stability.\n'
+              '• Firebase Remote Config (Google LLC): Dynamically serves configuration flags, quota parameters, and maintenance notifications.\n'
+              '• RevenueCat & Platform Billing (Google Play & Apple Store): Processes and verifies in-app subscriptions and purchase receipts securely without exposing your credit card details.',
         ),
         LegalSection(
-          heading: '5. Data Security & Isolation',
+          heading: '5. Data Security & Storage Isolation',
           content:
-              'All data transmission is encrypted using TLS/HTTPS. Cloud Firestore databases enforce strict per-user security rules ensuring only authenticated users can read or write their private account documents.',
+              'All communication between your device, our servers, and third-party APIs is encrypted in transit using industry-standard TLS/HTTPS protocols. Data stored in Cloud Firestore is protected by strict granular database security rules ensuring each user can only read and write their own records.',
         ),
         LegalSection(
-          heading: '6. Your Rights & Account Deletion',
+          heading: '6. Data Retention & Account Deletion Rights (GDPR / CCPA)',
           content:
-              'You have the right to access, edit, or delete your personal data at any time. You can permanently delete your account and all associated pantry, recipe, and preference data directly within the app via Profile → Settings → Account → Delete Account.',
+              'We respect your full legal right to access, export, or permanently delete your personal information:\n\n'
+              '• Permanent Account Deletion: You can permanently delete your account and all associated cloud data at any time by navigating to Settings → Account & Security → Delete Account.\n'
+              '• Immediate Erasure: When you initiate account deletion, your Firebase Auth record, Cloud Firestore user documents, pantry items, favorite recipes, and local database caches are completely and permanently erased.',
         ),
         LegalSection(
-          heading: '7. Contact Us',
+          heading: '7. Children’s Privacy',
           content:
-              'If you have questions or requests regarding your data privacy, please contact our Privacy Team at privacy@anumealai.app.',
+              'AnuMealAI is not directed toward children under the age of 13. We do not knowingly collect personal identifiable information from children under 13. If you believe a child has provided us with personal data, please contact us for immediate removal.',
+        ),
+        LegalSection(
+          heading: '8. Changes to This Privacy Policy',
+          content:
+              'We may periodically update this Privacy Policy to reflect app enhancements or regulatory changes. The current effective date will always be prominently displayed at the top of this document.',
+        ),
+        LegalSection(
+          heading: '9. Contact Us',
+          content:
+              'If you have questions, feedback, or data privacy requests regarding this policy, please reach out to our team at:\n\n'
+              'Email: privacy@anumealai.app\n'
+              'Support: support@anumealai.app\n'
+              'Website: https://anumealai.app',
         ),
       ],
     );

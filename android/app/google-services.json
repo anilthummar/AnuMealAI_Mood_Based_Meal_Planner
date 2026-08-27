@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "236908191532",
+    "project_id": "anumealai-app",
+    "storage_bucket": "anumealai-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:236908191532:android:8f7f6912024f1192a85689",
+        "android_client_info": {
+          "package_name": "com.anumealai.anu_meal_ai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCat8_S86cRh6EKOdw1MkLdoOHyT6u_4tc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

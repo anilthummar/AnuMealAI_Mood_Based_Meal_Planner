@@ -8,7 +8,8 @@
 
 | Property | Value | Notes |
 |---|---|---|
-| **API Key** | `test_GRcIzLgwSeOerbbBzAMMHbWyXhX` | Configured in `lib/core/constants/app_config.dart` |
+| **Android API Key** | `goog_HcIJqcEpkSzgUbaFzaNwNrXyqqO` | Configured in `lib/core/constants/app_config.dart` |
+| **iOS / Test API Key** | `test_GRcIzLgwSeOerbbBzAMMHbWyXhX` | Configured in `lib/core/constants/app_config.dart` |
 | **Entitlement Identifier** | `anumealai_pro` | Entitlement Name: **AnuMealAI Pro** |
 | **Default Offering** | `default` | Contains Monthly and Yearly packages |
 | **Monthly Package / Product** | `monthly` | Standard Monthly Subscription |
@@ -27,16 +28,21 @@
 
 ### Step 2: Configure Products
 1. Navigate to **Products**.
-2. Create/Link your store products:
-   - **Monthly**: Identifier: `monthly` (Subscription)
-   - **Yearly**: Identifier: `yearly` (Subscription)
+2. Linked store products configured in your RevenueCat Dashboard:
+   - **Google Play Store Products**:
+     - `anumealai_premium:monthly` (Subscription ID: `anumealai_premium`, Base Plan: `monthly`)
+     - `anumealai_premium:yearly` (Subscription ID: `anumealai_premium`, Base Plan: `yearly`)
+   - **Test Store Products**:
+     - `monthly` (Test Store)
+     - `yearly` (Test Store)
+3. Both products are attached to Entitlement: **`anumealai_pro`** (AnuMealAI Pro).
 
 ### Step 3: Configure Default Offering
 1. Navigate to **Offerings**.
-2. Select your `Default` offering (or create one with identifier `default`).
+2. Select your `Default` offering (identifier: `default`).
 3. Attach packages:
-   - **Monthly Package (`$rc_monthly` or `monthly`)**: Attach product `monthly` -> Link to entitlement `anumealai_pro`.
-   - **Annual Package (`$rc_annual` or `yearly`)**: Attach product `yearly` -> Link to entitlement `anumealai_pro`.
+   - **Monthly Package (`$rc_monthly` / `monthly`)**: Attach `anumealai_premium:monthly` (Play Store) and `monthly` (Test Store).
+   - **Annual Package (`$rc_annual` / `yearly`)**: Attach `anumealai_premium:yearly` (Play Store) and `yearly` (Test Store).
 
 ---
 

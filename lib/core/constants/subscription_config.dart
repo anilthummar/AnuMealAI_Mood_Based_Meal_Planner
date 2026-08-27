@@ -18,8 +18,19 @@ class SubscriptionConfig {
   static const String monthlyProductId = 'monthly';
   static const String yearlyProductId = 'yearly';
 
-  static const List<String> monthlyProductIds = ['monthly', 'anu_meal_ai_monthly'];
-  static const List<String> yearlyProductIds = ['yearly', 'anu_meal_ai_yearly'];
+  static const List<String> monthlyProductIds = [
+    'monthly',
+    'anumealai_premium:monthly',
+    'anumealai_premium',
+    'anu_meal_ai_monthly',
+  ];
+
+  static const List<String> yearlyProductIds = [
+    'yearly',
+    'anumealai_premium:yearly',
+    'anumealai_premium',
+    'anu_meal_ai_yearly',
+  ];
 
   /// Free-tier limits. Premium bypasses all of these (see FeatureAccessService).
   static const int freeRecipeGenerationsPerDay = 3;

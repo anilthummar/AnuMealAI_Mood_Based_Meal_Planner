@@ -23,10 +23,7 @@ class MealPlannerCubit extends Cubit<MealPlannerState> {
 
   void _init() {
     _subscription = mealPlannerRepository.currentPlanStream.listen((plan) {
-      emit(state.copyWith(
-        status: MealPlannerStatus.loaded,
-        currentPlan: plan,
-      ));
+      emit(state.copyWith(status: MealPlannerStatus.loaded, currentPlan: plan));
     });
     loadCurrentPlan();
   }
@@ -45,15 +42,14 @@ class MealPlannerCubit extends Cubit<MealPlannerState> {
     emit(state.copyWith(status: MealPlannerStatus.loading));
     try {
       final plan = await mealPlannerRepository.getCurrentWeekPlan();
-      emit(state.copyWith(
-        status: MealPlannerStatus.loaded,
-        currentPlan: plan,
-      ));
+      emit(state.copyWith(status: MealPlannerStatus.loaded, currentPlan: plan));
     } catch (e) {
-      emit(state.copyWith(
-        status: MealPlannerStatus.error,
-        errorMessage: 'Failed to load meal plan',
-      ));
+      emit(
+        state.copyWith(
+          status: MealPlannerStatus.error,
+          errorMessage: 'Failed to load meal plan',
+        ),
+      );
     }
   }
 
@@ -65,14 +61,22 @@ class MealPlannerCubit extends Cubit<MealPlannerState> {
     List<String> favoriteCuisines = const [],
   }) async {
     if (!featureAccess.canGenerateWeeklyPlan()) {
-      emit(state.copyWith(
-        status: MealPlannerStatus.error,
-        errorMessage: 'PLAN_LIMIT_REACHED',
-      ));
+      emit(
+        state.copyWith(
+          status: MealPlannerStatus.error,
+          errorMessage: 'PLAN_LIMIT_REACHED',
+        ),
+      );
       return false;
     }
 
-    emit(state.copyWith(status: MealPlannerStatus.generating, isGenerating: true, errorMessage: null));
+    emit(
+      state.copyWith(
+        status: MealPlannerStatus.generating,
+        isGenerating: true,
+        errorMessage: null,
+      ),
+    );
     try {
       final plan = await mealPlannerRepository.generateWeeklyPlan(
         moodId: moodId,
@@ -85,18 +89,22 @@ class MealPlannerCubit extends Cubit<MealPlannerState> {
       await featureAccess.recordWeeklyPlanGeneration();
       await analytics.logMealPlanGenerated(moodId);
 
-      emit(state.copyWith(
-        status: MealPlannerStatus.loaded,
-        currentPlan: plan,
-        isGenerating: false,
-      ));
+      emit(
+        state.copyWith(
+          status: MealPlannerStatus.loaded,
+          currentPlan: plan,
+          isGenerating: false,
+        ),
+      );
       return true;
     } catch (e) {
-      emit(state.copyWith(
-        status: MealPlannerStatus.error,
-        isGenerating: false,
-        errorMessage: 'Failed to generate weekly meal plan',
-      ));
+      emit(
+        state.copyWith(
+          status: MealPlannerStatus.error,
+          isGenerating: false,
+          errorMessage: 'Failed to generate weekly meal plan',
+        ),
+      );
       return false;
     }
   }
@@ -127,6 +135,14 @@ class MealPlannerCubit extends Cubit<MealPlannerState> {
 
   Future<void> toggleMealCooked(String entryId) async {
     await mealPlannerRepository.toggleMealCooked(entryId);
+  }
+
+  void clearError() {
+    if (state.status == MealPlannerStatus.error) {
+      emit(
+        state.copyWith(status: MealPlannerStatus.initial, errorMessage: null),
+      );
+    }
   }
 
   @override
