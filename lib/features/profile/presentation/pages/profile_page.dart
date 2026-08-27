@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -38,6 +39,44 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _pickImage(ImageSource source) async {
     try {
+      if (source == ImageSource.camera) {
+        final cameraStatus = await Permission.camera.request();
+        if (cameraStatus.isPermanentlyDenied) {
+          if (mounted) {
+            _showPermissionSettingsDialog(
+              title: 'Camera Permission Needed',
+              message:
+                  'Camera access is required to take a chef selfie. Please enable it in Settings.',
+            );
+          }
+          return;
+        }
+        if (!cameraStatus.isGranted && !cameraStatus.isLimited) {
+          if (mounted) {
+            AppSnackbar.show(
+              context,
+              message: 'Camera permission was not granted.',
+              variant: SnackbarVariant.error,
+            );
+          }
+          return;
+        }
+      } else if (source == ImageSource.gallery) {
+        if (Platform.isIOS) {
+          final photoStatus = await Permission.photos.request();
+          if (photoStatus.isPermanentlyDenied) {
+            if (mounted) {
+              _showPermissionSettingsDialog(
+                title: 'Photo Library Permission Needed',
+                message:
+                    'Photo Library access is required to choose a profile picture. Please enable it in Settings.',
+              );
+            }
+            return;
+          }
+        }
+      }
+
       final picker = ImagePicker();
       final picked = await picker.pickImage(
         source: source,
@@ -62,6 +101,32 @@ class _ProfilePageState extends State<ProfilePage> {
         );
       }
     }
+  }
+
+  void _showPermissionSettingsDialog({
+    required String title,
+    required String message,
+  }) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              openAppSettings();
+            },
+            child: const Text('Open Settings'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showAvatarOptions(BuildContext context, String? currentPath) {

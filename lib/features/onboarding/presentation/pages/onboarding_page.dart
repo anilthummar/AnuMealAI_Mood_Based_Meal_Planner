@@ -1372,23 +1372,25 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   label: 'Cooking Time',
                   value: '${prefs.typicalCookingTimeMinutes} min daily target',
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
                 _buildSummaryTile(
                   context,
                   emoji: '🍝',
                   label: 'Cuisines',
-                  value: prefs.favoriteCuisines.isEmpty
-                      ? 'All Cuisines'
-                      : prefs.favoriteCuisines.join(', '),
+                  value: prefs.favoriteCuisines.isEmpty ? 'All Cuisines' : '',
+                  tags: prefs.favoriteCuisines.isNotEmpty
+                      ? prefs.favoriteCuisines
+                      : null,
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
                 _buildSummaryTile(
                   context,
                   emoji: '🥗',
                   label: 'Dietary',
-                  value: prefs.dietaryRestrictions.isEmpty
-                      ? 'No restrictions'
-                      : prefs.dietaryRestrictions.join(', '),
+                  value: prefs.dietaryRestrictions.isEmpty ? 'No restrictions' : '',
+                  tags: prefs.dietaryRestrictions.isNotEmpty
+                      ? prefs.dietaryRestrictions
+                      : null,
                 ),
               ],
             ),
@@ -1439,11 +1441,73 @@ class _OnboardingPageState extends State<OnboardingPage> {
     required String emoji,
     required String label,
     required String value,
+    List<String>? tags,
   }) {
     final textTheme = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    if (tags != null && tags.isNotEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(emoji, style: const TextStyle(fontSize: 18)),
+              const SizedBox(width: 10),
+              Text(
+                label,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.only(left: 28),
+            child: Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: tags.map((tag) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? const Color(0xFF282828)
+                        : scheme.surfaceContainerHighest.withValues(alpha: 0.7),
+                    borderRadius: BorderRadius.circular(
+                      AppSpacing.radiusPill,
+                    ),
+                    border: Border.all(
+                      color: isDark
+                          ? const Color(0xFF383838)
+                          : scheme.outlineVariant.withValues(alpha: 0.6),
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(
+                    tag,
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                      color: scheme.onSurface,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      );
+    }
 
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(emoji, style: const TextStyle(fontSize: 18)),
         const SizedBox(width: 10),
@@ -1454,13 +1518,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
             fontWeight: FontWeight.w600,
           ),
         ),
-        const Spacer(),
-        Flexible(
+        const SizedBox(width: 16),
+        Expanded(
           child: Text(
             value,
             textAlign: TextAlign.end,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
             style: textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.w800,
               color: scheme.onSurface,
