@@ -175,6 +175,6 @@ flutter build apk --release
 
 ## ⚖️ License & Legal
 
-* **Terms of Use**: [https://sites.google.com/view/anumealai-terms-of-use/home](https://sites.google.com/view/anumealai-terms-of-use/home) (or [https://anumealai.app/terms](https://anumealai.app/terms))
-* **Privacy Policy**: [https://sites.google.com/view/anumealai-privacy-policy/home](https://sites.google.com/view/anumealai-privacy-policy/home) (or [https://anumealai.app/privacy](https://anumealai.app/privacy))
+* **Terms of Use**: [https://sites.google.com/view/anumealai-terms-of-use/home](https://sites.google.com/view/anumealai-terms-of-use/home)
+* **Privacy Policy**: [https://sites.google.com/view/anumealai-privacy-policy/home](https://sites.google.com/view/anumealai-privacy-policy/home)
 * Built for **Shipaton 2026** 🏆.
