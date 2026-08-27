@@ -39,7 +39,7 @@ This guide details the complete configuration required in the [Firebase Console]
 2. Under **Sign-in method**, enable:
    - **Email/Password**: Enable "Email/Password" (leave Email link disabled unless desired).
    - **Anonymous**: Enable (used for instant frictionless guest trial onboarding).
-3. Under **Templates**, customize the **Password reset** email sender name and reply-to email (`support@anumealai.app`).
+3. Under **Templates**, customize the **Password reset** email sender name and reply-to email (`anuailabs@gmail.com`).
 
 ---
 

@@ -75,9 +75,8 @@ class PrivacyPolicyPage extends StatelessWidget {
           heading: '9. Contact Us',
           content:
               'If you have questions, feedback, or data privacy requests regarding this policy, please reach out to our team at:\n\n'
-              'Email: privacy@anumealai.app\n'
-              'Support: support@anumealai.app\n'
-              'Website: https://anumealai.app',
+              'Email: anuailabs@gmail.com\n'
+              'Website: https://sites.google.com/view/anumealai-privacy-policy/home',
         ),
       ],
     );

@@ -75,7 +75,7 @@ class TermsOfUsePage extends StatelessWidget {
         LegalSection(
           heading: '11. Support & Contact Information',
           content:
-              'If you have any questions or feedback regarding these Terms of Use, please contact our support team at support@anumealai.app.',
+              'If you have any questions or feedback regarding these Terms of Use, please contact our support team at anuailabs@gmail.com.',
         ),
       ],
     );

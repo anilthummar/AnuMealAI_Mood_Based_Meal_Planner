@@ -179,13 +179,13 @@ flutter build apk --release
 * **URL**: [https://sites.google.com/view/anumealai-terms-of-use/home](https://sites.google.com/view/anumealai-terms-of-use/home)
 * **Effective Date**: August 27, 2026
 * **Version**: 1.0
-* **Contact**: `anuailabs@gmail.com` (or `legal@anumealai.app`)
+* **Contact**: [anuailabs@gmail.com](mailto:anuailabs@gmail.com)
 
 ### 2. Privacy Policy
 * **URL**: [https://sites.google.com/view/anumealai-privacy-policy/home](https://sites.google.com/view/anumealai-privacy-policy/home)
 * **Effective Date**: August 27, 2026
 * **Version**: 1.0
-* **Contact**: `anuailabs@gmail.com` (or `privacy@anumealai.app`)
+* **Contact**: [anuailabs@gmail.com](mailto:anuailabs@gmail.com)
 
 ---
 
