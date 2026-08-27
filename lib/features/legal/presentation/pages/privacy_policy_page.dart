@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/constants/app_config.dart';
 import 'legal_document_page.dart';
 
 /// Complete In-App Privacy Policy Document (§42, §43, §76).
@@ -13,6 +14,7 @@ class PrivacyPolicyPage extends StatelessWidget {
       title: 'Privacy Policy',
       version: '1.1',
       effectiveDate: 'August 27, 2026',
+      externalUrl: AppConfig.privacyPolicyUrl,
       sections: [
         LegalSection(
           heading: '1. Overview & Commitment',

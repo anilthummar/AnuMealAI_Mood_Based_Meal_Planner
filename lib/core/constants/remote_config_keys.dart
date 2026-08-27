@@ -27,6 +27,12 @@ class RemoteConfigKeys {
   static const String enableMoodRecommendations = 'enable_mood_recommendations';
   static const String enableNewHome = 'enable_new_home';
   static const String enablePremiumFeatures = 'enable_premium_features';
+
+  // AI & Cloud Integration
+  static const String geminiApiKey = 'gemini_api_key';
+  static const String geminiModel = 'gemini_model';
+  static const String revenueCatApiKeyAndroid = 'revenuecat_api_key_android';
+  static const String revenueCatApiKeyIos = 'revenuecat_api_key_ios';
 }
 
 /// Default local values for safe fallback when offline or before first fetch (§19)
@@ -54,5 +60,11 @@ class RemoteConfigDefaults {
     RemoteConfigKeys.enableMoodRecommendations: true,
     RemoteConfigKeys.enableNewHome: true,
     RemoteConfigKeys.enablePremiumFeatures: true,
+    RemoteConfigKeys.geminiApiKey:
+        'AQ.Ab8RN6Kx7v8LueIvQjSBaoEnwCtaONsvty0tnH0lloR_XiZTbA',
+    RemoteConfigKeys.geminiModel: 'gemini-3.6-flash',
+    RemoteConfigKeys.revenueCatApiKeyAndroid:
+        'goog_HcIJqcEpkSzgUbaFzaNwNrXyqqO',
+    RemoteConfigKeys.revenueCatApiKeyIos: 'test_GRcIzLgwSeOerbbBzAMMHbWyXhX',
   };
 }

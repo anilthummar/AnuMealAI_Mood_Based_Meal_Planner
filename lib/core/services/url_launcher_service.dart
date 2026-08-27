@@ -27,5 +27,6 @@ class UrlLauncherService {
 
   static Future<bool> openTermsOfUse() => openUrl(AppConfig.termsOfUseUrl);
 
-  static Future<bool> openPrivacyPolicy() => openUrl(AppConfig.privacyPolicyUrl);
+  static Future<bool> openPrivacyPolicy() =>
+      openUrl(AppConfig.privacyPolicyUrl);
 }

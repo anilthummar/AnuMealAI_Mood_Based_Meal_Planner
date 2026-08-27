@@ -8,8 +8,8 @@ import '../constants/hive_boxes.dart';
 import '../network/dio_client.dart';
 import '../network/network_info.dart';
 import '../services/ai/ai_recipe_service.dart';
+import '../services/ai/gemini_ai_recipe_service.dart';
 import '../services/ai/local_recipe_generator.dart';
-import '../services/ai/remote_ai_recipe_service.dart';
 import '../services/ai/resilient_ai_recipe_service.dart';
 import '../services/analytics_service.dart';
 import '../services/app_version_service.dart';
@@ -112,16 +112,24 @@ Future<void> initDependencyInjection() async {
 
   // AI Services
   sl.registerLazySingleton<LocalRecipeGenerator>(() => LocalRecipeGenerator());
-  sl.registerLazySingleton<RemoteAIRecipeService>(
-    () => RemoteAIRecipeService(sl()),
+  sl.registerLazySingleton<GeminiAiRecipeService>(
+    () => GeminiAiRecipeService(dio: sl()),
   );
   sl.registerLazySingleton<AIRecipeService>(
-    () =>
-        ResilientAIRecipeService(remote: sl(), local: sl(), networkInfo: sl()),
+    () => ResilientAIRecipeService(
+      gemini: sl(),
+      local: sl(),
+      networkInfo: sl(),
+      remoteConfig: sl<FirebaseService>().remoteConfig,
+    ),
   );
 
   // 2. DataSources
-  sl.registerLazySingleton<RevenueCatDataSource>(() => RevenueCatDataSource());
+  sl.registerLazySingleton<RevenueCatDataSource>(
+    () => RevenueCatDataSource(
+      firebaseRemoteConfig: sl<FirebaseService>().remoteConfig,
+    ),
+  );
   sl.registerLazySingleton<AuthRemoteDataSource>(
     () => FirebaseAuthRemoteDataSource(
       firebaseAuth: sl<FirebaseService>().auth,

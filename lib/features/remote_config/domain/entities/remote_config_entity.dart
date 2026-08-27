@@ -19,6 +19,10 @@ class RemoteConfigEntity extends Equatable {
   final bool enableMoodRecommendations;
   final bool enableNewHome;
   final bool enablePremiumFeatures;
+  final String geminiApiKey;
+  final String geminiModel;
+  final String revenueCatApiKeyAndroid;
+  final String revenueCatApiKeyIos;
 
   const RemoteConfigEntity({
     required this.minimumSupportedVersion,
@@ -38,6 +42,10 @@ class RemoteConfigEntity extends Equatable {
     required this.enableMoodRecommendations,
     required this.enableNewHome,
     required this.enablePremiumFeatures,
+    this.geminiApiKey = 'AQ.Ab8RN6Kx7v8LueIvQjSBaoEnwCtaONsvty0tnH0lloR_XiZTbA',
+    this.geminiModel = 'gemini-3.6-flash',
+    this.revenueCatApiKeyAndroid = 'goog_HcIJqcEpkSzgUbaFzaNwNrXyqqO',
+    this.revenueCatApiKeyIos = 'test_GRcIzLgwSeOerbbBzAMMHbWyXhX',
   });
 
   factory RemoteConfigEntity.fallback() {
@@ -62,6 +70,10 @@ class RemoteConfigEntity extends Equatable {
       enableMoodRecommendations: true,
       enableNewHome: true,
       enablePremiumFeatures: true,
+      geminiApiKey: 'AQ.Ab8RN6Kx7v8LueIvQjSBaoEnwCtaONsvty0tnH0lloR_XiZTbA',
+      geminiModel: 'gemini-3.6-flash',
+      revenueCatApiKeyAndroid: 'goog_HcIJqcEpkSzgUbaFzaNwNrXyqqO',
+      revenueCatApiKeyIos: 'test_GRcIzLgwSeOerbbBzAMMHbWyXhX',
     );
   }
 
@@ -84,5 +96,9 @@ class RemoteConfigEntity extends Equatable {
     enableMoodRecommendations,
     enableNewHome,
     enablePremiumFeatures,
+    geminiApiKey,
+    geminiModel,
+    revenueCatApiKeyAndroid,
+    revenueCatApiKeyIos,
   ];
 }

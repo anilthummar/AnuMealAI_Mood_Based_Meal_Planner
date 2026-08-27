@@ -8,7 +8,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/section_header.dart';
-import '../../../subscription/presentation/bloc/subscription_cubit.dart';
+import '../../../subscription/presentation/widgets/app_customer_center_bottom_sheet.dart';
 import '../bloc/settings_cubit.dart';
 import '../bloc/settings_state.dart';
 
@@ -138,9 +138,7 @@ class SettingsPage extends StatelessWidget {
                         'Manage subscription, change plan or request refund',
                       ),
                       trailing: const Icon(Icons.chevron_right_rounded),
-                      onTap: () => context
-                          .read<SubscriptionCubit>()
-                          .presentCustomerCenter(),
+                      onTap: () => showAppCustomerCenter(context),
                     ),
                     const Divider(),
                     ListTile(

@@ -95,6 +95,25 @@ class FirebaseRemoteConfigDataSource implements RemoteConfigDataSource {
       ),
       enableNewHome: rc.getBool(RemoteConfigKeys.enableNewHome),
       enablePremiumFeatures: rc.getBool(RemoteConfigKeys.enablePremiumFeatures),
+      geminiApiKey: rc.getString(RemoteConfigKeys.geminiApiKey).isNotEmpty
+          ? rc.getString(RemoteConfigKeys.geminiApiKey)
+          : RemoteConfigDefaults.defaults[RemoteConfigKeys.geminiApiKey]
+                as String,
+      geminiModel: rc.getString(RemoteConfigKeys.geminiModel).isNotEmpty
+          ? rc.getString(RemoteConfigKeys.geminiModel)
+          : RemoteConfigDefaults.defaults[RemoteConfigKeys.geminiModel]
+                as String,
+      revenueCatApiKeyAndroid:
+          rc.getString(RemoteConfigKeys.revenueCatApiKeyAndroid).isNotEmpty
+          ? rc.getString(RemoteConfigKeys.revenueCatApiKeyAndroid)
+          : RemoteConfigDefaults.defaults[RemoteConfigKeys
+                    .revenueCatApiKeyAndroid]
+                as String,
+      revenueCatApiKeyIos:
+          rc.getString(RemoteConfigKeys.revenueCatApiKeyIos).isNotEmpty
+          ? rc.getString(RemoteConfigKeys.revenueCatApiKeyIos)
+          : RemoteConfigDefaults.defaults[RemoteConfigKeys.revenueCatApiKeyIos]
+                as String,
     );
   }
 }

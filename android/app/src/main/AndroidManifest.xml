@@ -10,7 +10,7 @@
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
 
     <application
-        android:label="AnuMealAI"
+        android:label="AnuMealAI – AI Meal Planner"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity
@@ -50,6 +50,10 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
         </intent>
     </queries>
 </manifest>

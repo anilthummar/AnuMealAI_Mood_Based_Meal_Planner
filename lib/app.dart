@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import 'core/constants/app_config.dart';
 import 'core/dependency_injection/di.dart';
 import 'core/router/app_router.dart';
 import 'core/router/app_routes.dart';
@@ -31,10 +32,7 @@ import 'features/subscription/presentation/bloc/subscription_cubit.dart';
 class AnuMealAiApp extends StatefulWidget {
   final bool isOnboardingComplete;
 
-  const AnuMealAiApp({
-    super.key,
-    required this.isOnboardingComplete,
-  });
+  const AnuMealAiApp({super.key, required this.isOnboardingComplete});
 
   @override
   State<AnuMealAiApp> createState() => _AnuMealAiAppState();
@@ -104,9 +102,7 @@ class _AnuMealAiAppState extends State<AnuMealAiApp> {
                       context: context,
                       config: rcState.config,
                       onDismiss: () {
-                        context
-                            .read<RemoteConfigCubit>()
-                            .dismissSoftUpdate();
+                        context.read<RemoteConfigCubit>().dismissSoftUpdate();
                       },
                     );
                   }
@@ -116,7 +112,7 @@ class _AnuMealAiAppState extends State<AnuMealAiApp> {
             child: BlocBuilder<SettingsCubit, SettingsState>(
               builder: (context, settingsState) {
                 return MaterialApp.router(
-                  title: 'AnuMealAI',
+                  title: AppConfig.appName,
                   debugShowCheckedModeBanner: false,
                   theme: AppTheme.light,
                   darkTheme: AppTheme.dark,

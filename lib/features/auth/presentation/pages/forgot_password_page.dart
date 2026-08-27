@@ -103,13 +103,17 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.golden.withValues(alpha: 0.35),
+                                  color: AppColors.golden.withValues(
+                                    alpha: 0.35,
+                                  ),
                                   blurRadius: 20,
                                   offset: const Offset(0, 8),
                                 ),
                               ],
                               image: const DecorationImage(
-                                image: AssetImage('assets/images/app_icon_transparent.png'),
+                                image: AssetImage(
+                                  'assets/images/app_icon_transparent.png',
+                                ),
                                 fit: BoxFit.contain,
                               ),
                             ),
@@ -160,13 +164,17 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: AppColors.golden.withValues(alpha: 0.35),
+                                      color: AppColors.golden.withValues(
+                                        alpha: 0.35,
+                                      ),
                                       blurRadius: 20,
                                       offset: const Offset(0, 8),
                                     ),
                                   ],
                                   image: const DecorationImage(
-                                    image: AssetImage('assets/images/app_icon_transparent.png'),
+                                    image: AssetImage(
+                                      'assets/images/app_icon_transparent.png',
+                                    ),
                                     fit: BoxFit.contain,
                                   ),
                                 ),

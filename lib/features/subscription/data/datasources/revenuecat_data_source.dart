@@ -1,19 +1,24 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/constants/app_config.dart';
+import '../../../../core/constants/remote_config_keys.dart';
 import '../../../../core/constants/subscription_config.dart';
 import '../../domain/entities/subscription_entity.dart';
 
 class RevenueCatDataSource {
+  final FirebaseRemoteConfig? firebaseRemoteConfig;
   final _controller = StreamController<SubscriptionEntity>.broadcast();
   bool _isConfigured = false;
   bool _mockJudgeAccess = false;
   SubscriptionEntity _lastKnownState = const SubscriptionEntity();
+
+  RevenueCatDataSource({this.firebaseRemoteConfig});
 
   static const String _judgeAccessKey = 'mock_judge_access_active';
 
@@ -36,9 +41,32 @@ class RevenueCatDataSource {
       }
     } catch (_) {}
 
-    final apiKey = Platform.isAndroid
-        ? AppConfig.revenueCatApiKeyAndroid
-        : (Platform.isIOS ? AppConfig.revenueCatApiKeyIos : '');
+    String apiKey = '';
+    if (Platform.isAndroid) {
+      if (firebaseRemoteConfig != null) {
+        try {
+          final rcKey = firebaseRemoteConfig!
+              .getString(RemoteConfigKeys.revenueCatApiKeyAndroid)
+              .trim();
+          if (rcKey.isNotEmpty) apiKey = rcKey;
+        } catch (_) {}
+      }
+      if (apiKey.isEmpty) {
+        apiKey = AppConfig.revenueCatApiKeyAndroid;
+      }
+    } else if (Platform.isIOS) {
+      if (firebaseRemoteConfig != null) {
+        try {
+          final rcKey = firebaseRemoteConfig!
+              .getString(RemoteConfigKeys.revenueCatApiKeyIos)
+              .trim();
+          if (rcKey.isNotEmpty) apiKey = rcKey;
+        } catch (_) {}
+      }
+      if (apiKey.isEmpty) {
+        apiKey = AppConfig.revenueCatApiKeyIos;
+      }
+    }
 
     if (apiKey.isEmpty) {
       debugPrint(

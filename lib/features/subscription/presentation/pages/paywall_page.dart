@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/router/app_routes.dart';
 import '../../../../core/services/url_launcher_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -13,6 +12,7 @@ import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../bloc/subscription_cubit.dart';
 import '../bloc/subscription_state.dart';
+import '../widgets/app_customer_center_bottom_sheet.dart';
 
 class PaywallPage extends StatefulWidget {
   const PaywallPage({super.key});
@@ -720,92 +720,7 @@ class _PaywallPageState extends State<PaywallPage> {
   }
 
   void _handleCustomerCenter(BuildContext context, SubscriptionState state) {
-    final cubit = context.read<SubscriptionCubit>();
-    final isPromoActive =
-        state.subscription.activeOfferingId == 'shipaton_judge_trial';
-
-    if (isPromoActive) {
-      showDialog(
-        context: context,
-        builder: (dialogCtx) {
-          final isDark = Theme.of(context).brightness == Brightness.dark;
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24),
-            ),
-            title: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.golden.withValues(alpha: 0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.card_membership_rounded,
-                    color: AppColors.golden,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                const Expanded(
-                  child: Text(
-                    'Active Promo Pass',
-                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
-                  ),
-                ),
-              ],
-            ),
-            content: const Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Your AnuMealAI Pro access is currently active via a Promo Pass / Reviewer Code with full premium capabilities enabled.',
-                  style: TextStyle(height: 1.4, fontSize: 13.5),
-                ),
-                SizedBox(height: 12),
-                Text(
-                  'Store-level billing management in the Customer Center applies when you have an active Google Play or App Store paid subscription.',
-                  style: TextStyle(
-                    height: 1.35,
-                    fontSize: 12.5,
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(dialogCtx).pop(),
-                child: const Text('Close'),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isDark
-                      ? AppColors.butterGold
-                      : AppColors.primaryGold,
-                  foregroundColor: const Color(0xFF141414),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.of(dialogCtx).pop();
-                  cubit.presentCustomerCenter();
-                },
-                child: const Text(
-                  'Open Customer Center',
-                  style: TextStyle(fontWeight: FontWeight.w800),
-                ),
-              ),
-            ],
-          );
-        },
-      );
-    } else {
-      cubit.presentCustomerCenter();
-    }
+    showAppCustomerCenter(context);
   }
 }
 

@@ -22,22 +22,19 @@ class AppConfig {
     defaultValue: 'test_GRcIzLgwSeOerbbBzAMMHbWyXhX',
   );
 
-  /// Base URL + key for the recipe-generation backend/proxy. Point this at a
-  /// server-side proxy in production so the real LLM API key never ships
-  /// inside the app binary.
-  static const String aiApiBaseUrl = String.fromEnvironment(
-    'AI_API_BASE_URL',
-    defaultValue: 'https://api.anumealai.app',
+  /// Direct Google Gemini API configuration (§11)
+  static const String geminiApiKey = String.fromEnvironment(
+    'GEMINI_API_KEY',
+    defaultValue: 'AQ.Ab8RN6Kx7v8LueIvQjSBaoEnwCtaONsvty0tnH0lloR_XiZTbA',
   );
-  static const String aiApiKey = String.fromEnvironment(
-    'AI_API_KEY',
-    defaultValue: '',
+  static const String geminiModel = String.fromEnvironment(
+    'GEMINI_MODEL',
+    defaultValue: 'gemini-3.6-flash',
   );
 
-  static bool get isConfigured =>
-      aiApiKey.isNotEmpty || aiApiBaseUrl.isNotEmpty;
+  static bool get isConfigured => geminiApiKey.isNotEmpty;
 
-  static const String appName = 'AnuMealAI';
+  static const String appName = 'AnuMealAI – AI Meal Planner';
   static const String appTagline =
       'Your mood. Your ingredients. Your perfect meal.';
 
