@@ -7,21 +7,17 @@ import 'package:anu_meal_ai/core/network/network_info.dart';
 import 'package:anu_meal_ai/core/services/ai/ai_recipe_models.dart';
 import 'package:anu_meal_ai/core/services/ai/gemini_ai_recipe_service.dart';
 import 'package:anu_meal_ai/core/services/ai/local_recipe_generator.dart';
-import 'package:anu_meal_ai/core/services/ai/remote_ai_recipe_service.dart';
 import 'package:anu_meal_ai/core/services/ai/resilient_ai_recipe_service.dart';
 
 class MockDio extends Mock implements Dio {}
 
 class MockNetworkInfo extends Mock implements NetworkInfo {}
 
-class MockRemoteAIRecipeService extends Mock implements RemoteAIRecipeService {}
-
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late MockDio mockDio;
   late MockNetworkInfo mockNetworkInfo;
-  late MockRemoteAIRecipeService mockRemote;
   late LocalRecipeGenerator localGenerator;
   late GeminiAiRecipeService geminiService;
 
@@ -117,7 +113,6 @@ void main() {
   group('ResilientAIRecipeService Multi-Engine Fallback Tests', () {
     test('falls back to local generator seamlessly when offline', () async {
       SharedPreferences.setMockInitialValues({});
-      final prefs = await SharedPreferences.getInstance();
 
       when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => false);
 
@@ -139,7 +134,6 @@ void main() {
         SharedPreferences.setMockInitialValues({
           'custom_gemini_api_key': 'test_key',
         });
-        final prefs = await SharedPreferences.getInstance();
 
         when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
         when(
