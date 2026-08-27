@@ -35,7 +35,11 @@ class _RecipesPageState extends State<RecipesPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _triggerSearch();
+      final recipeState = context.read<RecipeCubit>().state;
+      if (recipeState.generatedRecipes.isEmpty &&
+          recipeState.status != RecipeStatus.loading) {
+        _triggerSearch();
+      }
     });
   }
 
