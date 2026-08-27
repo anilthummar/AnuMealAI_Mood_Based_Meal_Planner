@@ -175,6 +175,21 @@ flutter build apk --release
 
 ## ⚖️ License & Legal
 
-* **Terms of Use**: [https://sites.google.com/view/anumealai-terms-of-use/home](https://sites.google.com/view/anumealai-terms-of-use/home)
-* **Privacy Policy**: [https://sites.google.com/view/anumealai-privacy-policy/home](https://sites.google.com/view/anumealai-privacy-policy/home)
-* Built for **Shipaton 2026** 🏆.
+### 1. Terms of Use (EULA)
+* **URL**: [https://sites.google.com/view/anumealai-terms-of-use/home](https://sites.google.com/view/anumealai-terms-of-use/home)
+* **Effective Date**: August 27, 2026
+* **Version**: 1.0
+* **Contact**: `anuailabs@gmail.com` (or `legal@anumealai.app`)
+
+### 2. Privacy Policy
+* **URL**: [https://sites.google.com/view/anumealai-privacy-policy/home](https://sites.google.com/view/anumealai-privacy-policy/home)
+* **Effective Date**: August 27, 2026
+* **Version**: 1.0
+* **Contact**: `anuailabs@gmail.com` (or `privacy@anumealai.app`)
+
+---
+
+## 📬 Developer Contact & Support
+
+* **Email**: [anuailabs@gmail.com](mailto:anuailabs@gmail.com)
+* **Competition**: Built with ❤️ for **Shipaton 2026** 🏆.

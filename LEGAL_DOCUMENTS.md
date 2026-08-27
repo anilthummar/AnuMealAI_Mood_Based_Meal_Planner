@@ -8,7 +8,7 @@ These legal documents are rendered in-app and must also be hosted on your public
 
 **Effective Date:** August 27, 2026  
 **Version:** 1.0  
-**Contact:** `legal@anumealai.app`
+**Contact:** `anuailabs@gmail.com` (or `legal@anumealai.app`)
 
 ### 1. Acceptance of Terms
 By accessing or using the AnuMealAI mobile application ("Service"), you agree to be bound by these Terms of Use ("Terms"). If you do not agree, do not use the Service.
@@ -43,7 +43,7 @@ To the maximum extent permitted by law, AnuMealAI and its operators shall not be
 
 **Effective Date:** August 27, 2026  
 **Version:** 1.0  
-**Contact:** `privacy@anumealai.app`
+**Contact:** `anuailabs@gmail.com` (or `privacy@anumealai.app`)
 
 ### 1. Information We Collect
 * **Account Information:** Email address, display name, and authentication tokens via Firebase Authentication.
