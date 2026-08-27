@@ -69,7 +69,8 @@ class ResilientAIRecipeService implements AIRecipeService {
   }
 
   String _generateRequestKey(AiRecipeRequest request) {
-    final sortedIngredients = List<String>.from(request.availableIngredients)..sort();
+    final sortedIngredients = List<String>.from(request.availableIngredients)
+      ..sort();
     final sortedTraits = List<String>.from(request.moodTraits)..sort();
     return '${request.moodId}_${request.mealType}_${request.maxCookingTimeMinutes}_${sortedTraits.join(",")}_${sortedIngredients.join(",")}';
   }
@@ -83,13 +84,17 @@ class ResilientAIRecipeService implements AIRecipeService {
     // 1. Return from memory cache if fresh (< 5 mins)
     final cached = _cache[cacheKey];
     if (cached != null && !cached.isExpired) {
-      debugPrint('[ResilientAIRecipeService] Serving cached recipe suggestions.');
+      debugPrint(
+        '[ResilientAIRecipeService] Serving cached recipe suggestions.',
+      );
       return cached.recipes;
     }
 
     // 2. If an identical request is currently in flight, await that existing Future
     if (_inFlightRequests.containsKey(cacheKey)) {
-      debugPrint('[ResilientAIRecipeService] Awaiting existing in-flight AI request.');
+      debugPrint(
+        '[ResilientAIRecipeService] Awaiting existing in-flight AI request.',
+      );
       return _inFlightRequests[cacheKey]!;
     }
 
@@ -110,7 +115,9 @@ class ResilientAIRecipeService implements AIRecipeService {
     }
   }
 
-  Future<List<AiRecipeSuggestion>> _executeGeneration(AiRecipeRequest request) async {
+  Future<List<AiRecipeSuggestion>> _executeGeneration(
+    AiRecipeRequest request,
+  ) async {
     final isOnline = await networkInfo.isConnected;
 
     // 1. Attempt Direct Google Gemini Live AI via Remote Config Key
