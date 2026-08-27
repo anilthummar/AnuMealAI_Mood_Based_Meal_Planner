@@ -60,11 +60,9 @@ class RemoteConfigDefaults {
     RemoteConfigKeys.enableMoodRecommendations: true,
     RemoteConfigKeys.enableNewHome: true,
     RemoteConfigKeys.enablePremiumFeatures: true,
-    RemoteConfigKeys.geminiApiKey:
-        'AQ.Ab8RN6Kx7v8LueIvQjSBaoEnwCtaONsvty0tnH0lloR_XiZTbA',
+    RemoteConfigKeys.geminiApiKey: '',
     RemoteConfigKeys.geminiModel: 'gemini-3.6-flash',
-    RemoteConfigKeys.revenueCatApiKeyAndroid:
-        'goog_HcIJqcEpkSzgUbaFzaNwNrXyqqO',
-    RemoteConfigKeys.revenueCatApiKeyIos: 'test_GRcIzLgwSeOerbbBzAMMHbWyXhX',
+    RemoteConfigKeys.revenueCatApiKeyAndroid: '',
+    RemoteConfigKeys.revenueCatApiKeyIos: '',
   };
 }

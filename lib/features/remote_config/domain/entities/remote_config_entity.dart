@@ -42,10 +42,10 @@ class RemoteConfigEntity extends Equatable {
     required this.enableMoodRecommendations,
     required this.enableNewHome,
     required this.enablePremiumFeatures,
-    this.geminiApiKey = 'AQ.Ab8RN6Kx7v8LueIvQjSBaoEnwCtaONsvty0tnH0lloR_XiZTbA',
+    this.geminiApiKey = '',
     this.geminiModel = 'gemini-3.6-flash',
-    this.revenueCatApiKeyAndroid = 'goog_HcIJqcEpkSzgUbaFzaNwNrXyqqO',
-    this.revenueCatApiKeyIos = 'test_GRcIzLgwSeOerbbBzAMMHbWyXhX',
+    this.revenueCatApiKeyAndroid = '',
+    this.revenueCatApiKeyIos = '',
   });
 
   factory RemoteConfigEntity.fallback() {
@@ -70,10 +70,10 @@ class RemoteConfigEntity extends Equatable {
       enableMoodRecommendations: true,
       enableNewHome: true,
       enablePremiumFeatures: true,
-      geminiApiKey: 'AQ.Ab8RN6Kx7v8LueIvQjSBaoEnwCtaONsvty0tnH0lloR_XiZTbA',
+      geminiApiKey: '',
       geminiModel: 'gemini-3.6-flash',
-      revenueCatApiKeyAndroid: 'goog_HcIJqcEpkSzgUbaFzaNwNrXyqqO',
-      revenueCatApiKeyIos: 'test_GRcIzLgwSeOerbbBzAMMHbWyXhX',
+      revenueCatApiKeyAndroid: '',
+      revenueCatApiKeyIos: '',
     );
   }
 
