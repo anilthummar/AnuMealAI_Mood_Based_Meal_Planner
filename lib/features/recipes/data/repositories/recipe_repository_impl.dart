@@ -110,12 +110,20 @@ class RecipeRepositoryImpl implements RecipeRepository {
     await localDataSource.saveFeedback(id, rating);
   }
 
+  final Map<String, List<Recipe>> _quickSuggestionsCache = {};
+
   @override
   Future<List<Recipe>> getQuickSuggestions({
     required String moodId,
     required List<String> availableIngredients,
   }) async {
-    return generateRecipes(
+    final cacheKey = '${moodId}_${availableIngredients.join(",")}';
+    final cached = _quickSuggestionsCache[cacheKey];
+    if (cached != null && cached.isNotEmpty) {
+      return cached;
+    }
+
+    final recipes = await generateRecipes(
       moodId: moodId,
       moodTraits: const [],
       availableIngredients: availableIngredients,
@@ -123,5 +131,11 @@ class RecipeRepositoryImpl implements RecipeRepository {
       maxCookingTimeMinutes: 30,
       count: 3,
     );
+
+    if (recipes.isNotEmpty) {
+      _quickSuggestionsCache[cacheKey] = recipes;
+    }
+
+    return recipes;
   }
 }

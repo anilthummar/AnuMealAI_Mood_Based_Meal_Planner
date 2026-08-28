@@ -7,25 +7,29 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/constants/app_config.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/app_snackbar.dart';
 import '../../data/utils/subscription_error_mapper.dart';
 import '../bloc/subscription_cubit.dart';
 import '../bloc/subscription_state.dart';
 
 /// Shows the custom on-theme Customer Center bottom sheet for AnuMealAI.
 void showAppCustomerCenter(BuildContext context) {
+  final cubit = context.read<SubscriptionCubit>();
+  final parentContext = context;
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
     builder: (modalCtx) => BlocProvider.value(
-      value: context.read<SubscriptionCubit>(),
-      child: const AppCustomerCenterBottomSheet(),
+      value: cubit,
+      child: AppCustomerCenterBottomSheet(parentContext: parentContext),
     ),
   );
 }
 
 class AppCustomerCenterBottomSheet extends StatelessWidget {
-  const AppCustomerCenterBottomSheet({super.key});
+  final BuildContext? parentContext;
+  const AppCustomerCenterBottomSheet({super.key, this.parentContext});
 
   Future<void> _openUrl(BuildContext context, String urlString) async {
     final uri = Uri.parse(urlString);
@@ -65,20 +69,37 @@ class AppCustomerCenterBottomSheet extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     return BlocConsumer<SubscriptionCubit, SubscriptionState>(
-      listener: (context, state) {
-        if (state.errorMessage != null &&
-            state.errorMessage!.trim().isNotEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                state.errorMessage == SubscriptionErrorMapper.storePendingCode
-                    ? 'Google Play is currently reviewing billing for this version. You can unlock features with the Promo Pass.'
-                    : state.errorMessage!,
-              ),
-              backgroundColor: const Color(0xFFD97706),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+      listener: (blocCtx, state) {
+        final success = state.successMessage;
+        final error = state.errorMessage;
+        if (success != null && success.trim().isNotEmpty) {
+          blocCtx.read<SubscriptionCubit>().clearMessages();
+          if (Navigator.of(blocCtx).canPop()) {
+            Navigator.of(blocCtx).pop();
+          }
+          final targetCtx = parentContext ?? blocCtx;
+          if (targetCtx.mounted) {
+            AppSnackbar.show(
+              targetCtx,
+              message: success,
+              variant: SnackbarVariant.success,
+            );
+          }
+        } else if (error != null && error.trim().isNotEmpty) {
+          blocCtx.read<SubscriptionCubit>().clearMessages();
+          if (Navigator.of(blocCtx).canPop()) {
+            Navigator.of(blocCtx).pop();
+          }
+          final targetCtx = parentContext ?? blocCtx;
+          if (targetCtx.mounted) {
+            AppSnackbar.show(
+              targetCtx,
+              message: error == SubscriptionErrorMapper.storePendingCode
+                  ? 'Google Play is reviewing store billing for this version. Promo pass is active.'
+                  : error,
+              variant: SnackbarVariant.warning,
+            );
+          }
         }
       },
       builder: (context, state) {
@@ -393,7 +414,9 @@ class AppCustomerCenterBottomSheet extends StatelessWidget {
                           'Deactivate promo pass to test Google Play purchase checkout',
                       onTap: () {
                         context.read<SubscriptionCubit>().resetToFreeTier();
-                        Navigator.of(context).pop();
+                        if (Navigator.of(context).canPop()) {
+                          Navigator.of(context).pop();
+                        }
                       },
                     ),
                     const SizedBox(height: 10),

@@ -135,9 +135,14 @@ class RecipeCubit extends Cubit<RecipeState> {
   }
 
   void clearError() {
-    if (state.status == RecipeStatus.error) {
-      emit(state.copyWith(status: RecipeStatus.initial, errorMessage: null));
-    }
+    emit(
+      state.copyWith(
+        status: state.generatedRecipes.isNotEmpty
+            ? RecipeStatus.loaded
+            : RecipeStatus.initial,
+        clearError: true,
+      ),
+    );
   }
 
   Future<void> rateRecipe(String id, String rating) async {

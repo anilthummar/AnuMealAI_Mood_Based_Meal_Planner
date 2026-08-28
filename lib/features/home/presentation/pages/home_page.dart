@@ -12,6 +12,7 @@ import '../../../../core/widgets/recipe_card.dart';
 import '../../../favorites/presentation/bloc/favorites_cubit.dart';
 import '../../../mood/presentation/bloc/mood_cubit.dart';
 import '../../../profile/presentation/bloc/profile_cubit.dart';
+import '../../../recipes/domain/entities/recipe.dart';
 import '../../../recipes/presentation/bloc/recipe_cubit.dart';
 import '../bloc/home_cubit.dart';
 import '../bloc/home_state.dart';
@@ -208,8 +209,10 @@ class _HomePageState extends State<HomePage> {
                             description: mood.description,
                             isSelected: isSelected,
                             onTap: () {
-                              context.read<MoodCubit>().selectMood(mood);
-                              context.read<HomeCubit>().loadDashboard();
+                              if (!isSelected) {
+                                context.read<MoodCubit>().selectMood(mood);
+                                context.read<HomeCubit>().switchMood(mood.id);
+                              }
                             },
                           ),
                         );
@@ -292,58 +295,78 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: AppSpacing.md),
 
-                  // 5. List of Luxury Horizontal Recipe Cards
-                  if (state.quickSuggestions.isNotEmpty) ...[
-                    ...state.quickSuggestions.map((recipe) {
-                      final isFav = favState.favoriteIds.contains(recipe.id);
-
-                      return RecipeCard(
-                        id: recipe.id,
-                        title: recipe.title,
-                        imageUrl: recipe.imageUrl,
-                        matchPercentage: recipe.matchPercentage,
-                        totalTimeMinutes: recipe.totalTimeMinutes,
-                        difficulty: recipe.difficulty,
-                        calories: recipe.calories,
-                        isHorizontal: true,
-                        isFavorite: isFav,
-                        onTap: () {
-                          context.read<RecipeCubit>().setSelectedRecipe(recipe);
-                          context.push(
-                            AppRoutes.recipeDetailPath(recipe.id),
-                            extra: recipe,
-                          );
-                        },
-                        onFavoriteToggle: () => context
-                            .read<FavoritesCubit>()
-                            .toggleFavorite(recipe),
-                      );
-                    }),
+                  // 5. List of Luxury Horizontal Recipe Cards or Shimmer Skeleton
+                  if (state.isDishesLoading) ...[
+                    const RecipeListSkeleton(count: 3),
                   ] else ...[
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: cardBg,
-                        borderRadius: BorderRadius.circular(24),
-                        border: cardBorder,
-                        boxShadow: cardShadow,
-                      ),
-                      child: Row(
-                        children: [
-                          const Text('🍳', style: TextStyle(fontSize: 32)),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Text(
-                              'Add ingredients to unlock chef-crafted dishes for your mood!',
-                              style: TextStyle(
-                                color: scheme.onSurface,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                              ),
+                    Builder(
+                      builder: (context) {
+                        final filteredRecipes = _getFilteredRecipes(
+                          state.quickSuggestions,
+                        );
+                        if (filteredRecipes.isNotEmpty) {
+                          return Column(
+                            children: filteredRecipes.map((recipe) {
+                              final isFav = favState.favoriteIds.contains(
+                                recipe.id,
+                              );
+
+                              return RecipeCard(
+                                id: recipe.id,
+                                title: recipe.title,
+                                imageUrl: recipe.imageUrl,
+                                matchPercentage: recipe.matchPercentage,
+                                totalTimeMinutes: recipe.totalTimeMinutes,
+                                difficulty: recipe.difficulty,
+                                calories: recipe.calories,
+                                isHorizontal: true,
+                                isFavorite: isFav,
+                                onTap: () {
+                                  context.read<RecipeCubit>().setSelectedRecipe(
+                                    recipe,
+                                  );
+                                  context.push(
+                                    AppRoutes.recipeDetailPath(recipe.id),
+                                    extra: recipe,
+                                  );
+                                },
+                                onFavoriteToggle: () => context
+                                    .read<FavoritesCubit>()
+                                    .toggleFavorite(recipe),
+                              );
+                            }).toList(),
+                          );
+                        } else {
+                          return Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: cardBg,
+                              borderRadius: BorderRadius.circular(24),
+                              border: cardBorder,
+                              boxShadow: cardShadow,
                             ),
-                          ),
-                        ],
-                      ),
+                            child: Row(
+                              children: [
+                                const Text(
+                                  '🍳',
+                                  style: TextStyle(fontSize: 32),
+                                ),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Text(
+                                    'Add ingredients to unlock chef-crafted dishes for your mood!',
+                                    style: TextStyle(
+                                      color: scheme.onSurface,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                      },
                     ),
                   ],
                   const SizedBox(height: AppSpacing.md),
@@ -482,9 +505,37 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  List<Recipe> _getFilteredRecipes(List<Recipe> recipes) {
+    if (_selectedCategory == 'All' || recipes.isEmpty) return recipes;
+
+    final filtered = recipes.where((recipe) {
+      final mt = recipe.mealType.toLowerCase();
+      if (_selectedCategory == 'Main dishes') {
+        return mt.contains('lunch') ||
+            mt.contains('dinner') ||
+            mt.contains('main') ||
+            (!mt.contains('breakfast') && !mt.contains('dessert'));
+      }
+      if (_selectedCategory == 'Breakfast') {
+        return mt.contains('breakfast') || mt.contains('brunch');
+      }
+      if (_selectedCategory == 'Quick & Easy') {
+        return recipe.totalTimeMinutes <= 25;
+      }
+      if (_selectedCategory == 'Desserts') {
+        return mt.contains('dessert') ||
+            mt.contains('snack') ||
+            mt.contains('sweet');
+      }
+      return true;
+    }).toList();
+
+    return filtered.isNotEmpty ? filtered : recipes;
+  }
+
   Widget _buildFilterChip(
     String label, {
-    bool isSelected = false,
+    required bool isSelected,
     bool hasRemove = false,
   }) {
     final scheme = Theme.of(context).colorScheme;
@@ -504,7 +555,15 @@ class _HomePageState extends State<HomePage> {
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: InkWell(
-        onTap: () => setState(() => _selectedCategory = label),
+        onTap: () {
+          setState(() {
+            if (isSelected && hasRemove) {
+              _selectedCategory = 'All';
+            } else {
+              _selectedCategory = label;
+            }
+          });
+        },
         borderRadius: BorderRadius.circular(AppSpacing.radiusPill),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -539,16 +598,14 @@ class _HomePageState extends State<HomePage> {
                   fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                 ),
               ),
-              if (hasRemove) ...[
+              if (hasRemove && isSelected) ...[
                 const SizedBox(width: 6),
                 Icon(
                   Icons.close_rounded,
                   size: 14,
-                  color: isSelected
-                      ? (isDark
-                            ? scheme.onPrimaryContainer
-                            : AppColors.onAmberContainer)
-                      : scheme.onSurfaceVariant,
+                  color: isDark
+                      ? scheme.onPrimaryContainer
+                      : AppColors.onAmberContainer,
                 ),
               ],
             ],

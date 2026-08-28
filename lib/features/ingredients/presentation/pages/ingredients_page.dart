@@ -125,28 +125,41 @@ class IngredientsPage extends StatelessWidget {
 
               // Items List or Empty State
               Expanded(
-                child: filtered.isEmpty
-                    ? EmptyState(
-                        emoji: '🥦',
-                        title: state.ingredients.isEmpty
-                            ? 'Your fridge is looking empty'
-                            : 'No matching ingredients',
-                        message: state.ingredients.isEmpty
-                            ? 'Add what you have at home to get personalized, mood-matching recipes.'
-                            : 'Try adjusting your search or category filter.',
-                        actionLabel: state.ingredients.isEmpty ? 'Add Ingredients' : 'Add New Item',
-                        actionIcon: Icons.add_rounded,
-                        onAction: () => _openAddSheet(context),
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(
-                          AppSpacing.md,
-                          AppSpacing.xs,
-                          AppSpacing.md,
-                          AppSpacing.xxl + AppSpacing.xl,
-                        ),
-                        itemCount: filtered.length,
-                        itemBuilder: (context, index) {
+                child: RefreshIndicator(
+                  onRefresh: () => cubit.loadIngredients(),
+                  child: filtered.isEmpty
+                      ? ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          children: [
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.4,
+                              child: EmptyState(
+                                emoji: '🥦',
+                                title: state.ingredients.isEmpty
+                                    ? 'Your fridge is looking empty'
+                                    : 'No matching ingredients',
+                                message: state.ingredients.isEmpty
+                                    ? 'Add what you have at home to get personalized, mood-matching recipes.'
+                                    : 'Try adjusting your search or category filter.',
+                                actionLabel: state.ingredients.isEmpty
+                                    ? 'Add Ingredients'
+                                    : 'Add New Item',
+                                actionIcon: Icons.add_rounded,
+                                onAction: () => _openAddSheet(context),
+                              ),
+                            ),
+                          ],
+                        )
+                      : ListView.builder(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.fromLTRB(
+                            AppSpacing.md,
+                            AppSpacing.xs,
+                            AppSpacing.md,
+                            AppSpacing.xxl + AppSpacing.xl,
+                          ),
+                          itemCount: filtered.length,
+                          itemBuilder: (context, index) {
                           final item = filtered[index];
                           final catEnum = IngredientCategoryX.fromName(item.category.toLowerCase());
 
@@ -287,6 +300,7 @@ class IngredientsPage extends StatelessWidget {
                           );
                         },
                       ),
+                ),
               ),
             ],
           );

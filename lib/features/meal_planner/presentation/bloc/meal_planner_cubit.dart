@@ -31,18 +31,29 @@ class MealPlannerCubit extends Cubit<MealPlannerState> {
   void selectDay(dynamic day) {
     if (day is int) {
       if (day >= 0 && day < WeeklyMealPlan.days.length) {
-        emit(state.copyWith(selectedDay: WeeklyMealPlan.days[day]));
+        emit(
+          state.copyWith(
+            selectedDay: WeeklyMealPlan.days[day],
+            clearError: true,
+          ),
+        );
       }
     } else {
-      emit(state.copyWith(selectedDay: day.toString()));
+      emit(state.copyWith(selectedDay: day.toString(), clearError: true));
     }
   }
 
   Future<void> loadCurrentPlan() async {
-    emit(state.copyWith(status: MealPlannerStatus.loading));
+    emit(state.copyWith(status: MealPlannerStatus.loading, clearError: true));
     try {
       final plan = await mealPlannerRepository.getCurrentWeekPlan();
-      emit(state.copyWith(status: MealPlannerStatus.loaded, currentPlan: plan));
+      emit(
+        state.copyWith(
+          status: MealPlannerStatus.loaded,
+          currentPlan: plan,
+          clearError: true,
+        ),
+      );
     } catch (e) {
       emit(
         state.copyWith(
@@ -138,11 +149,14 @@ class MealPlannerCubit extends Cubit<MealPlannerState> {
   }
 
   void clearError() {
-    if (state.status == MealPlannerStatus.error) {
-      emit(
-        state.copyWith(status: MealPlannerStatus.initial, errorMessage: null),
-      );
-    }
+    emit(
+      state.copyWith(
+        status: state.currentPlan != null
+            ? MealPlannerStatus.loaded
+            : MealPlannerStatus.initial,
+        clearError: true,
+      ),
+    );
   }
 
   @override

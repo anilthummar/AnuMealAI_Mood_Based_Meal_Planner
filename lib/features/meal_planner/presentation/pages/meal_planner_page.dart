@@ -51,6 +51,7 @@ class MealPlannerPage extends StatelessWidget {
     return BlocConsumer<MealPlannerCubit, MealPlannerState>(
       listener: (context, state) {
         if (state.errorMessage == 'PLAN_LIMIT_REACHED') {
+          context.read<MealPlannerCubit>().clearError();
           context.push(AppRoutes.paywall);
         }
       },
@@ -329,356 +330,366 @@ class MealPlannerPage extends StatelessWidget {
 
                 // Meal Slots for the Selected Day
                 Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.md,
-                      AppSpacing.sm,
-                      AppSpacing.md,
-                      AppSpacing.xxl,
-                    ),
-                    children: [
-                      // Header & "Add Missing to Shopping List" Action
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '${WeeklyMealPlan.dayNames[state.selectedDayIndex]} Menu',
-                                style: textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w800,
+                  child: RefreshIndicator(
+                    onRefresh: () async => cubit.loadCurrentPlan(),
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.md,
+                        AppSpacing.sm,
+                        AppSpacing.md,
+                        AppSpacing.xxl,
+                      ),
+                      children: [
+                        // Header & "Add Missing to Shopping List" Action
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${WeeklyMealPlan.dayNames[state.selectedDayIndex]} Menu',
+                                  style: textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                'Tap meal to view or cook',
-                                style: textTheme.bodySmall?.copyWith(
-                                  color: scheme.onSurfaceVariant,
+                                Text(
+                                  'Tap meal to view or cook',
+                                  style: textTheme.bodySmall?.copyWith(
+                                    color: scheme.onSurfaceVariant,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          TextButton.icon(
-                            icon: const Icon(
-                              Icons.add_shopping_cart_rounded,
-                              size: 16,
+                              ],
                             ),
-                            label: const Text('Add Missing 🛒'),
-                            onPressed: () {
-                              final allMissing = <String>{};
-                              for (final entry in dayEntries) {
-                                allMissing.addAll(
-                                  entry.recipe.missingIngredients,
-                                );
-                              }
-                              if (allMissing.isEmpty) {
-                                AppSnackbar.show(
-                                  context,
-                                  message:
-                                      'You already have all ingredients for this day! 🎉',
-                                );
-                              } else {
-                                for (final item in allMissing) {
-                                  context.read<ShoppingListCubit>().addItem(
-                                    name: item,
-                                    category: 'Produce',
+                            TextButton.icon(
+                              icon: const Icon(
+                                Icons.add_shopping_cart_rounded,
+                                size: 16,
+                              ),
+                              label: const Text('Add Missing 🛒'),
+                              onPressed: () {
+                                final allMissing = <String>{};
+                                for (final entry in dayEntries) {
+                                  allMissing.addAll(
+                                    entry.recipe.missingIngredients,
                                   );
                                 }
-                                AppSnackbar.show(
-                                  context,
-                                  message:
-                                      'Added ${allMissing.length} ingredients to shopping list! 🛒',
-                                  variant: SnackbarVariant.success,
-                                );
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
+                                if (allMissing.isEmpty) {
+                                  AppSnackbar.show(
+                                    context,
+                                    message:
+                                        'You already have all ingredients for this day! 🎉',
+                                  );
+                                } else {
+                                  for (final item in allMissing) {
+                                    context.read<ShoppingListCubit>().addItem(
+                                      name: item,
+                                      category: 'Produce',
+                                    );
+                                  }
+                                  AppSnackbar.show(
+                                    context,
+                                    message:
+                                        'Added ${allMissing.length} ingredients to shopping list! 🛒',
+                                    variant: SnackbarVariant.success,
+                                  );
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
 
-                      ...WeeklyMealPlan.slots.map((slot) {
-                        final entry = dayEntries
-                            .where(
-                              (e) =>
-                                  e.mealSlot.toLowerCase() ==
-                                  slot.toLowerCase(),
-                            )
-                            .firstOrNull;
+                        ...WeeklyMealPlan.slots.map((slot) {
+                          final entry = dayEntries
+                              .where(
+                                (e) =>
+                                    e.mealSlot.toLowerCase() ==
+                                    slot.toLowerCase(),
+                              )
+                              .firstOrNull;
 
-                        if (entry == null) {
+                          if (entry == null) {
+                            return Padding(
+                              padding: const EdgeInsets.only(
+                                bottom: AppSpacing.md,
+                              ),
+                              child: AppCard(
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      _slotIcon(slot),
+                                      style: const TextStyle(fontSize: 22),
+                                    ),
+                                    const SizedBox(width: AppSpacing.sm),
+                                    Text(
+                                      slot,
+                                      style: textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    TextButton(
+                                      onPressed: () => _generate(context),
+                                      child: const Text('Add Meal'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }
+
+                          final recipe = entry.recipe;
+
                           return Padding(
                             padding: const EdgeInsets.only(
                               bottom: AppSpacing.md,
                             ),
                             child: AppCard(
-                              child: Row(
+                              borderColor: entry.isCooked
+                                  ? AppColors.sage
+                                  : null,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    _slotIcon(slot),
-                                    style: const TextStyle(fontSize: 22),
+                                  // Slot header
+                                  Row(
+                                    children: [
+                                      Text(
+                                        _slotIcon(slot),
+                                        style: const TextStyle(fontSize: 18),
+                                      ),
+                                      const SizedBox(width: AppSpacing.xs),
+                                      Text(
+                                        slot.toUpperCase(),
+                                        style: textTheme.labelSmall?.copyWith(
+                                          color: _slotColor(slot),
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: 1.1,
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      if (entry.isCooked)
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 3,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.sage.withValues(
+                                              alpha: 0.15,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              AppSpacing.radiusPill,
+                                            ),
+                                          ),
+                                          child: const Row(
+                                            children: [
+                                              Icon(
+                                                Icons.check_circle_rounded,
+                                                color: AppColors.sage,
+                                                size: 14,
+                                              ),
+                                              SizedBox(width: 4),
+                                              Text(
+                                                'COOKED',
+                                                style: TextStyle(
+                                                  color: AppColors.sage,
+                                                  fontWeight: FontWeight.w900,
+                                                  fontSize: 10,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                    ],
                                   ),
-                                  const SizedBox(width: AppSpacing.sm),
-                                  Text(
-                                    slot,
-                                    style: textTheme.titleMedium?.copyWith(
-                                      fontWeight: FontWeight.w700,
+                                  const Divider(height: AppSpacing.md),
+
+                                  // Recipe summary row
+                                  InkWell(
+                                    onTap: () {
+                                      context
+                                          .read<RecipeCubit>()
+                                          .setSelectedRecipe(recipe);
+                                      context.push(
+                                        AppRoutes.recipeDetailPath(recipe.id),
+                                        extra: recipe,
+                                      );
+                                    },
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          width: 68,
+                                          height: 68,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black.withValues(
+                                                  alpha: 0.3,
+                                                ),
+                                                blurRadius: 6,
+                                                offset: const Offset(0, 2),
+                                              ),
+                                            ],
+                                          ),
+                                          child: ClipOval(
+                                            child: RecipeImage(
+                                              seed: recipe.title,
+                                              imageUrl: recipe.imageUrl,
+                                              width: 68,
+                                              height: 68,
+                                              borderRadius: BorderRadius.zero,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: AppSpacing.md),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                recipe.title,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: textTheme.titleSmall
+                                                    ?.copyWith(
+                                                      fontWeight:
+                                                          FontWeight.w800,
+                                                    ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Row(
+                                                children: [
+                                                  Container(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 6,
+                                                          vertical: 2,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color: AppColors.sage
+                                                          .withValues(
+                                                            alpha: 0.15,
+                                                          ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            AppSpacing
+                                                                .radiusPill,
+                                                          ),
+                                                    ),
+                                                    child: Text(
+                                                      '${recipe.matchPercentage}% match',
+                                                      style: const TextStyle(
+                                                        color: AppColors.sage,
+                                                        fontSize: 10,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  Text(
+                                                    '${recipe.totalTimeMinutes}m • ${recipe.calories} kcal',
+                                                    style: textTheme.bodySmall
+                                                        ?.copyWith(
+                                                          color: scheme
+                                                              .onSurfaceVariant,
+                                                          fontSize: 11,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  const Spacer(),
-                                  TextButton(
-                                    onPressed: () => _generate(context),
-                                    child: const Text('Add Meal'),
+                                  const SizedBox(height: AppSpacing.sm),
+
+                                  // Actions: Swap / Cook
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.refresh_rounded,
+                                          size: 20,
+                                        ),
+                                        tooltip: 'Swap this meal',
+                                        onPressed: () {
+                                          final moodState = context
+                                              .read<MoodCubit>()
+                                              .state;
+                                          final ingState = context
+                                              .read<IngredientCubit>()
+                                              .state;
+                                          cubit.swapMeal(
+                                            entryId: entry.id,
+                                            moodId: moodState.selectedMood.id,
+                                            availableIngredients: ingState
+                                                .availableIngredients
+                                                .map((i) => i.name)
+                                                .toList(),
+                                          );
+                                        },
+                                      ),
+                                      const SizedBox(width: 4),
+                                      ElevatedButton.icon(
+                                        icon: Icon(
+                                          entry.isCooked
+                                              ? Icons.check_rounded
+                                              : Icons.restaurant_rounded,
+                                          size: 16,
+                                        ),
+                                        label: Text(
+                                          entry.isCooked
+                                              ? 'Marked Cooked'
+                                              : 'Cook',
+                                        ),
+                                        style: ElevatedButton.styleFrom(
+                                          visualDensity: VisualDensity.compact,
+                                          minimumSize: const Size(0, 36),
+                                          backgroundColor: entry.isCooked
+                                              ? AppColors.sage
+                                              : scheme.primary,
+                                          foregroundColor: Colors.white,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 14,
+                                          ),
+                                        ),
+                                        onPressed: () {
+                                          if (entry.isCooked) {
+                                            cubit.toggleMealCooked(entry.id);
+                                          } else {
+                                            context
+                                                .read<RecipeCubit>()
+                                                .setSelectedRecipe(recipe);
+                                            context.push(
+                                              AppRoutes.cookingModePath(
+                                                recipe.id,
+                                              ),
+                                              extra: recipe,
+                                            );
+                                            cubit.toggleMealCooked(entry.id);
+                                          }
+                                        },
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
                             ),
                           );
-                        }
-
-                        final recipe = entry.recipe;
-
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                          child: AppCard(
-                            borderColor: entry.isCooked ? AppColors.sage : null,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Slot header
-                                Row(
-                                  children: [
-                                    Text(
-                                      _slotIcon(slot),
-                                      style: const TextStyle(fontSize: 18),
-                                    ),
-                                    const SizedBox(width: AppSpacing.xs),
-                                    Text(
-                                      slot.toUpperCase(),
-                                      style: textTheme.labelSmall?.copyWith(
-                                        color: _slotColor(slot),
-                                        fontWeight: FontWeight.w900,
-                                        letterSpacing: 1.1,
-                                      ),
-                                    ),
-                                    const Spacer(),
-                                    if (entry.isCooked)
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 3,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.sage.withValues(
-                                            alpha: 0.15,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            AppSpacing.radiusPill,
-                                          ),
-                                        ),
-                                        child: const Row(
-                                          children: [
-                                            Icon(
-                                              Icons.check_circle_rounded,
-                                              color: AppColors.sage,
-                                              size: 14,
-                                            ),
-                                            SizedBox(width: 4),
-                                            Text(
-                                              'COOKED',
-                                              style: TextStyle(
-                                                color: AppColors.sage,
-                                                fontWeight: FontWeight.w900,
-                                                fontSize: 10,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                                const Divider(height: AppSpacing.md),
-
-                                // Recipe summary row
-                                InkWell(
-                                  onTap: () {
-                                    context
-                                        .read<RecipeCubit>()
-                                        .setSelectedRecipe(recipe);
-                                    context.push(
-                                      AppRoutes.recipeDetailPath(recipe.id),
-                                      extra: recipe,
-                                    );
-                                  },
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        width: 68,
-                                        height: 68,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black.withValues(
-                                                alpha: 0.3,
-                                              ),
-                                              blurRadius: 6,
-                                              offset: const Offset(0, 2),
-                                            ),
-                                          ],
-                                        ),
-                                        child: ClipOval(
-                                          child: RecipeImage(
-                                            seed: recipe.title,
-                                            imageUrl: recipe.imageUrl,
-                                            width: 68,
-                                            height: 68,
-                                            borderRadius: BorderRadius.zero,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: AppSpacing.md),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              recipe.title,
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: textTheme.titleSmall
-                                                  ?.copyWith(
-                                                    fontWeight: FontWeight.w800,
-                                                  ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Row(
-                                              children: [
-                                                Container(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 6,
-                                                        vertical: 2,
-                                                      ),
-                                                  decoration: BoxDecoration(
-                                                    color: AppColors.sage
-                                                        .withValues(
-                                                          alpha: 0.15,
-                                                        ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          AppSpacing.radiusPill,
-                                                        ),
-                                                  ),
-                                                  child: Text(
-                                                    '${recipe.matchPercentage}% match',
-                                                    style: const TextStyle(
-                                                      color: AppColors.sage,
-                                                      fontSize: 10,
-                                                      fontWeight:
-                                                          FontWeight.w800,
-                                                    ),
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 6),
-                                                Text(
-                                                  '${recipe.totalTimeMinutes}m • ${recipe.calories} kcal',
-                                                  style: textTheme.bodySmall
-                                                      ?.copyWith(
-                                                        color: scheme
-                                                            .onSurfaceVariant,
-                                                        fontSize: 11,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                      ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: AppSpacing.sm),
-
-                                // Actions: Swap / Cook
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.refresh_rounded,
-                                        size: 20,
-                                      ),
-                                      tooltip: 'Swap this meal',
-                                      onPressed: () {
-                                        final moodState = context
-                                            .read<MoodCubit>()
-                                            .state;
-                                        final ingState = context
-                                            .read<IngredientCubit>()
-                                            .state;
-                                        cubit.swapMeal(
-                                          entryId: entry.id,
-                                          moodId: moodState.selectedMood.id,
-                                          availableIngredients: ingState
-                                              .availableIngredients
-                                              .map((i) => i.name)
-                                              .toList(),
-                                        );
-                                      },
-                                    ),
-                                    const SizedBox(width: 4),
-                                    ElevatedButton.icon(
-                                      icon: Icon(
-                                        entry.isCooked
-                                            ? Icons.check_rounded
-                                            : Icons.restaurant_rounded,
-                                        size: 16,
-                                      ),
-                                      label: Text(
-                                        entry.isCooked
-                                            ? 'Marked Cooked'
-                                            : 'Cook',
-                                      ),
-                                      style: ElevatedButton.styleFrom(
-                                        visualDensity: VisualDensity.compact,
-                                        minimumSize: const Size(0, 36),
-                                        backgroundColor: entry.isCooked
-                                            ? AppColors.sage
-                                            : scheme.primary,
-                                        foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 14,
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        if (entry.isCooked) {
-                                          cubit.toggleMealCooked(entry.id);
-                                        } else {
-                                          context
-                                              .read<RecipeCubit>()
-                                              .setSelectedRecipe(recipe);
-                                          context.push(
-                                            AppRoutes.cookingModePath(
-                                              recipe.id,
-                                            ),
-                                            extra: recipe,
-                                          );
-                                          cubit.toggleMealCooked(entry.id);
-                                        }
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }),
-                    ],
+                        }),
+                      ],
+                    ),
                   ),
                 ),
               ],

@@ -393,7 +393,7 @@ class _PaywallPageState extends State<PaywallPage> {
                       AppButton(
                         label: _showStorePlans
                             ? 'Hide Store Purchase Options'
-                            : 'View & Test Store Plans (\$4.99 / \$39.99) 💳',
+                            : 'View Store Pricing Plans (${state.monthlyPrice} / ${state.yearlyPrice}) 💳',
                         variant: AppButtonVariant.outlined,
                         onPressed: () =>
                             setState(() => _showStorePlans = !_showStorePlans),

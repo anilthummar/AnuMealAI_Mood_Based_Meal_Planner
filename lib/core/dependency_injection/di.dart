@@ -128,6 +128,8 @@ Future<void> initDependencyInjection() async {
   sl.registerLazySingleton<RevenueCatDataSource>(
     () => RevenueCatDataSource(
       firebaseRemoteConfig: sl<FirebaseService>().remoteConfig,
+      firestore: sl<FirebaseService>().firestore,
+      firebaseAuth: sl<FirebaseService>().auth,
     ),
   );
   sl.registerLazySingleton<AuthRemoteDataSource>(

@@ -75,8 +75,11 @@ class _RecipesPageState extends State<RecipesPage> {
 
     return BlocConsumer<RecipeCubit, RecipeState>(
       listener: (context, state) {
-        if (state.errorMessage == 'DAILY_LIMIT_REACHED' && isPremium) {
+        if (state.errorMessage == 'DAILY_LIMIT_REACHED') {
           context.read<RecipeCubit>().clearError();
+          if (!isPremium) {
+            context.push(AppRoutes.paywall);
+          }
         }
       },
       builder: (context, state) {

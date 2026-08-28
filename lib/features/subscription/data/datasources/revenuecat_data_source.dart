@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
@@ -13,12 +15,18 @@ import '../../domain/entities/subscription_entity.dart';
 
 class RevenueCatDataSource {
   final FirebaseRemoteConfig? firebaseRemoteConfig;
+  final FirebaseFirestore? firestore;
+  final FirebaseAuth? firebaseAuth;
   final _controller = StreamController<SubscriptionEntity>.broadcast();
   bool _isConfigured = false;
   bool _mockJudgeAccess = false;
   SubscriptionEntity _lastKnownState = const SubscriptionEntity();
 
-  RevenueCatDataSource({this.firebaseRemoteConfig});
+  RevenueCatDataSource({
+    this.firebaseRemoteConfig,
+    this.firestore,
+    this.firebaseAuth,
+  });
 
   static const String _judgeAccessKey = 'mock_judge_access_active';
 
@@ -40,6 +48,27 @@ class RevenueCatDataSource {
         );
       }
     } catch (_) {}
+
+    // Check Cloud Firestore for persistent restored subscription
+    if (firestore != null && firebaseAuth?.currentUser != null) {
+      try {
+        final uid = firebaseAuth!.currentUser!.uid;
+        final doc = await firestore!.collection('users').doc(uid).get();
+        if (doc.exists && doc.data()?['isPremium'] == true) {
+          final offId = doc.data()?['activeOfferingId'] as String?;
+          _mockJudgeAccess = true;
+          _emitState(
+            SubscriptionEntity(
+              tier: SubscriptionTier.premium,
+              status: SubscriptionStatus.premium,
+              activeOfferingId: offId ?? 'shipaton_judge_trial',
+            ),
+          );
+        }
+      } catch (e) {
+        debugPrint('[RevenueCat] Firestore subscription check note: $e');
+      }
+    }
 
     String apiKey = '';
     if (Platform.isAndroid) {
@@ -138,6 +167,26 @@ class RevenueCatDataSource {
     _lastKnownState = state;
     if (!_controller.isClosed) {
       _controller.add(state);
+    }
+    _syncToFirestore(state);
+  }
+
+  Future<void> _syncToFirestore(SubscriptionEntity state) async {
+    if (firestore == null || firebaseAuth?.currentUser == null) return;
+    try {
+      final uid = firebaseAuth!.currentUser!.uid;
+      await firestore!.collection('users').doc(uid).set({
+        'isPremium': state.isPremium,
+        'subscriptionTier': state.tier.name,
+        'subscriptionStatus': state.status.name,
+        'activeOfferingId': state.activeOfferingId,
+        'subscriptionUpdatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+      debugPrint(
+        '[RevenueCat] Synced subscription state to Firestore users/$uid (isPremium: ${state.isPremium})',
+      );
+    } catch (e) {
+      debugPrint('[RevenueCat] Firestore subscription sync note: $e');
     }
   }
 
@@ -305,14 +354,33 @@ class RevenueCatDataSource {
   }
 
   Future<CustomerInfo?> restorePurchases() async {
-    if (!_isConfigured) return null;
-    try {
-      final customerInfo = await Purchases.restorePurchases();
-      _handleCustomerInfo(customerInfo);
-      return customerInfo;
-    } catch (e) {
-      rethrow;
+    CustomerInfo? customerInfo;
+    if (_isConfigured) {
+      try {
+        customerInfo = await Purchases.restorePurchases();
+        _handleCustomerInfo(customerInfo);
+      } catch (e) {
+        debugPrint('[RevenueCat] Purchases.restorePurchases warning: $e');
+      }
     }
+
+    // Check Cloud Firestore backup
+    if (firestore != null && firebaseAuth?.currentUser != null) {
+      try {
+        final uid = firebaseAuth!.currentUser!.uid;
+        final doc = await firestore!.collection('users').doc(uid).get();
+        if (doc.exists && doc.data()?['isPremium'] == true) {
+          await setMockJudgeAccess(true);
+          return customerInfo;
+        }
+      } catch (e) {
+        debugPrint('[RevenueCat] Firestore restore check note: $e');
+      }
+    }
+
+    if (customerInfo != null) return customerInfo;
+    if (_mockJudgeAccess || _lastKnownState.isPremium) return null;
+    return null;
   }
 
   /// Presents the official RevenueCat Native Paywall UI
@@ -371,13 +439,36 @@ class RevenueCatDataSource {
 
   /// Identifies authenticated Firebase UID in RevenueCat (§27, §40)
   Future<void> logIn(String appUserId) async {
-    if (!_isConfigured) return;
-    try {
-      final logInResult = await Purchases.logIn(appUserId);
-      _handleCustomerInfo(logInResult.customerInfo);
-      debugPrint('[RevenueCat] Identified user: $appUserId');
-    } catch (e) {
-      debugPrint('[RevenueCat] Error identifying user $appUserId: $e');
+    if (_isConfigured) {
+      try {
+        final logInResult = await Purchases.logIn(appUserId);
+        _handleCustomerInfo(logInResult.customerInfo);
+        debugPrint('[RevenueCat] Identified user: $appUserId');
+      } catch (e) {
+        debugPrint('[RevenueCat] Error identifying user $appUserId: $e');
+      }
+    }
+
+    // Check Cloud Firestore for active subscription
+    if (firestore != null) {
+      try {
+        final doc = await firestore!.collection('users').doc(appUserId).get();
+        if (doc.exists && doc.data()?['isPremium'] == true) {
+          final offId = doc.data()?['activeOfferingId'] as String?;
+          await setMockJudgeAccess(true);
+          _emitState(
+            SubscriptionEntity(
+              tier: SubscriptionTier.premium,
+              status: SubscriptionStatus.premium,
+              activeOfferingId: offId ?? 'shipaton_judge_trial',
+            ),
+          );
+        }
+      } catch (e) {
+        debugPrint(
+          '[RevenueCat] Error checking Firestore for user $appUserId: $e',
+        );
+      }
     }
   }
 

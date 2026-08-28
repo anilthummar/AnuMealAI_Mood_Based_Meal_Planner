@@ -68,6 +68,7 @@ class HomeCubit extends Cubit<HomeState> {
       emit(
         state.copyWith(
           status: HomeStatus.loaded,
+          isDishesLoading: false,
           greeting: greeting,
           userName: prefs.name.isNotEmpty ? prefs.name : 'Anu',
           availableIngredientsCount: availableIngredients.length,
@@ -82,9 +83,50 @@ class HomeCubit extends Cubit<HomeState> {
       emit(
         state.copyWith(
           status: HomeStatus.error,
+          isDishesLoading: false,
           errorMessage: 'Failed to load home dashboard',
         ),
       );
+    }
+  }
+
+  Future<void> switchMood(String moodId) async {
+    emit(state.copyWith(isDishesLoading: true));
+    try {
+      final ingredients = await ingredientRepository.getIngredients();
+      final availableNames = ingredients
+          .where((i) => i.isAvailable == true)
+          .map((i) => i.name.toString())
+          .toList();
+
+      final currentMood =
+          moodRepository
+              .getAllMoods()
+              .where((m) => m.id == moodId)
+              .firstOrNull ??
+          moodRepository.getSelectedMood() ??
+          moodRepository.getAllMoods().first;
+
+      final quickList = await recipeRepository.getQuickSuggestions(
+        moodId: moodId,
+        availableIngredients: availableNames,
+      );
+
+      final headline =
+          "Trending for your ${currentMood.name.toLowerCase()} mood";
+
+      emit(
+        state.copyWith(
+          isDishesLoading: false,
+          quickSuggestions: quickList,
+          personalizedRecommendation: quickList.isNotEmpty
+              ? quickList.first
+              : null,
+          personalizedHeadline: headline,
+        ),
+      );
+    } catch (_) {
+      emit(state.copyWith(isDishesLoading: false));
     }
   }
 }

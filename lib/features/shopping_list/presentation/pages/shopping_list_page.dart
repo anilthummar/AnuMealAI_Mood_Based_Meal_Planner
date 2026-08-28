@@ -211,26 +211,43 @@ class ShoppingListPage extends StatelessWidget {
           }
 
           if (state.items.isEmpty) {
-            return EmptyState(
-              emoji: '🛒',
-              title: 'Your Grocery List is Empty',
-              message: 'Generate a meal plan or explore recipes to add missing ingredients in one tap!',
-              actionLabel: 'Discover Recipes 🍳',
-              onAction: () => context.go(AppRoutes.recipes),
+            return RefreshIndicator(
+              onRefresh: () => context.read<ShoppingListCubit>().loadItems(),
+              child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.6,
+                    child: EmptyState(
+                      emoji: '🛒',
+                      title: 'Your Grocery List is Empty',
+                      message:
+                          'Generate a meal plan or explore recipes to add missing ingredients in one tap!',
+                      actionLabel: 'Discover Recipes 🍳',
+                      onAction: () => context.go(AppRoutes.recipes),
+                    ),
+                  ),
+                ],
+              ),
             );
           }
 
           final grouped = state.groupedByCategory;
-          final progressPercent = state.items.isEmpty ? 0.0 : state.completedCount / state.items.length;
+          final progressPercent = state.items.isEmpty
+              ? 0.0
+              : state.completedCount / state.items.length;
 
-          return ListView(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.md,
-              AppSpacing.xs,
-              AppSpacing.md,
-              AppSpacing.xxl + 40,
-            ),
-            children: [
+          return RefreshIndicator(
+            onRefresh: () => context.read<ShoppingListCubit>().loadItems(),
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                AppSpacing.xs,
+                AppSpacing.md,
+                AppSpacing.xxl + 40,
+              ),
+              children: [
               // Progress Banner Card
               Container(
                 padding: const EdgeInsets.all(AppSpacing.md),
@@ -393,8 +410,9 @@ class ShoppingListPage extends StatelessWidget {
                 );
               }),
             ],
-          );
-        },
+          ),
+        );
+      },
       ),
     );
   }

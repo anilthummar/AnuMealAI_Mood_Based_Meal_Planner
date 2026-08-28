@@ -93,32 +93,48 @@ class FavoritesPage extends StatelessWidget {
 
               // Grid
               Expanded(
-                child: filtered.isEmpty
-                    ? Center(
-                        child: Text(
-                          'No saved recipes match your filter.',
-                          style: textTheme.bodyMedium,
+                child: RefreshIndicator(
+                  onRefresh: () => cubit.loadFavorites(),
+                  child: filtered.isEmpty
+                      ? ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          children: [
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.5,
+                              child: Center(
+                                child: Text(
+                                  'No saved recipes match your filter.',
+                                  style: textTheme.bodyMedium,
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : ListView.builder(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.all(AppSpacing.md),
+                          itemCount: filtered.length,
+                          itemBuilder: (context, index) {
+                            final recipe = filtered[index];
+                            return RecipeCard(
+                              id: recipe.id,
+                              title: recipe.title,
+                              imageUrl: recipe.imageUrl,
+                              matchPercentage: recipe.matchPercentage,
+                              totalTimeMinutes: recipe.totalTimeMinutes,
+                              difficulty: recipe.difficulty,
+                              isHorizontal: true,
+                              isFavorite: true,
+                              onTap: () => context.push(
+                                AppRoutes.recipeDetailPath(recipe.id),
+                                extra: recipe,
+                              ),
+                              onFavoriteToggle: () =>
+                                  cubit.toggleFavorite(recipe),
+                            );
+                          },
                         ),
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(AppSpacing.md),
-                        itemCount: filtered.length,
-                        itemBuilder: (context, index) {
-                          final recipe = filtered[index];
-                          return RecipeCard(
-                            id: recipe.id,
-                            title: recipe.title,
-                            imageUrl: recipe.imageUrl,
-                            matchPercentage: recipe.matchPercentage,
-                            totalTimeMinutes: recipe.totalTimeMinutes,
-                            difficulty: recipe.difficulty,
-                            isHorizontal: true,
-                            isFavorite: true,
-                            onTap: () => context.push(AppRoutes.recipeDetailPath(recipe.id), extra: recipe),
-                            onFavoriteToggle: () => cubit.toggleFavorite(recipe),
-                          );
-                        },
-                      ),
+                ),
               ),
             ],
           );

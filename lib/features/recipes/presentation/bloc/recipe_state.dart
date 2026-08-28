@@ -33,6 +33,7 @@ class RecipeState extends Equatable {
     String? selectedMealType,
     int? maxCookingTimeMinutes,
     String? errorMessage,
+    bool clearError = false,
     bool? isGenerating,
   }) {
     return RecipeState(
@@ -41,21 +42,22 @@ class RecipeState extends Equatable {
       quickSuggestions: quickSuggestions ?? this.quickSuggestions,
       selectedRecipe: selectedRecipe ?? this.selectedRecipe,
       selectedMealType: selectedMealType ?? this.selectedMealType,
-      maxCookingTimeMinutes: maxCookingTimeMinutes ?? this.maxCookingTimeMinutes,
-      errorMessage: errorMessage ?? this.errorMessage,
+      maxCookingTimeMinutes:
+          maxCookingTimeMinutes ?? this.maxCookingTimeMinutes,
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       isGenerating: isGenerating ?? this.isGenerating,
     );
   }
 
   @override
   List<Object?> get props => [
-        status,
-        generatedRecipes,
-        quickSuggestions,
-        selectedRecipe,
-        selectedMealType,
-        maxCookingTimeMinutes,
-        errorMessage,
-        isGenerating,
-      ];
+    status,
+    generatedRecipes,
+    quickSuggestions,
+    selectedRecipe,
+    selectedMealType,
+    maxCookingTimeMinutes,
+    errorMessage,
+    isGenerating,
+  ];
 }

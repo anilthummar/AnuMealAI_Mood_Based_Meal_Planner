@@ -20,7 +20,9 @@ class MealPlannerState extends Equatable {
   });
 
   int get selectedDayIndex {
-    final idx = WeeklyMealPlan.days.indexWhere((d) => d.toLowerCase() == selectedDay.toLowerCase());
+    final idx = WeeklyMealPlan.days.indexWhere(
+      (d) => d.toLowerCase() == selectedDay.toLowerCase(),
+    );
     return idx == -1 ? 0 : idx;
   }
 
@@ -29,17 +31,24 @@ class MealPlannerState extends Equatable {
     WeeklyMealPlan? currentPlan,
     String? selectedDay,
     String? errorMessage,
+    bool clearError = false,
     bool? isGenerating,
   }) {
     return MealPlannerState(
       status: status ?? this.status,
       currentPlan: currentPlan ?? this.currentPlan,
       selectedDay: selectedDay ?? this.selectedDay,
-      errorMessage: errorMessage ?? this.errorMessage,
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       isGenerating: isGenerating ?? this.isGenerating,
     );
   }
 
   @override
-  List<Object?> get props => [status, currentPlan, selectedDay, errorMessage, isGenerating];
+  List<Object?> get props => [
+    status,
+    currentPlan,
+    selectedDay,
+    errorMessage,
+    isGenerating,
+  ];
 }
