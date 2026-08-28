@@ -29,4 +29,12 @@ class UrlLauncherService {
 
   static Future<bool> openPrivacyPolicy() =>
       openUrl(AppConfig.privacyPolicyUrl);
+
+  static Future<bool> openPlayStoreRedeem([String? code]) {
+    final clean = code?.trim();
+    final url = (clean != null && clean.isNotEmpty)
+        ? 'https://play.google.com/redeem?code=${Uri.encodeComponent(clean)}'
+        : 'https://play.google.com/redeem';
+    return openUrl(url);
+  }
 }

@@ -115,10 +115,19 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
       'JUDGE_ACCESS',
       'JUDGE2026',
       'ANUMEALPRO',
+      'ANUMEALAI_VIP',
+      'VIP_PRO',
+      'VIP',
       'FREE_TRIAL',
       'PROMO',
-      'VIP',
+      'PROMO2026',
       'CHEFPRO',
+      'TESTER',
+      'TESTER_PASS',
+      'LIFETIME_PASS',
+      'EARLY_ACCESS',
+      'PREMIUM',
+      'SPECIAL_PASS',
     };
 
     if (validCodes.contains(clean)) {
@@ -135,7 +144,7 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
             activeOfferingId: 'shipaton_judge_trial',
           ),
           successMessage:
-              '🎉 Shipaton Judge Trial Unlocked! Full premium access enabled.',
+              '🎉 Promo Pass Activated! Full premium features unlocked.',
         ),
       );
       return true;

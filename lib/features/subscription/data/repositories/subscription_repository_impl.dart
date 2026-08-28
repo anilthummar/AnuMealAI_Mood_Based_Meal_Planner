@@ -86,7 +86,8 @@ class SubscriptionRepositoryImpl
         }
       }
 
-      if (monthlyPkg != null) monthlyPrice = monthlyPkg.storeProduct.priceString;
+      if (monthlyPkg != null)
+        monthlyPrice = monthlyPkg.storeProduct.priceString;
       if (annualPkg != null) yearlyPrice = annualPkg.storeProduct.priceString;
     }
 

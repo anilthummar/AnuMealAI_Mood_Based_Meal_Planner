@@ -248,18 +248,19 @@ class RevenueCatDataSource {
 
       if (storeProducts.isNotEmpty) {
         final prod = storeProducts.first;
-        final isYearly =
-            cleanId.contains('year') || cleanId.contains('annual');
+        final isYearly = cleanId.contains('year') || cleanId.contains('annual');
 
         SubscriptionOption? targetOption;
         if (prod.subscriptionOptions != null &&
             prod.subscriptionOptions!.isNotEmpty) {
-          targetOption = prod.subscriptionOptions!.where((opt) {
-            final optId = opt.id.toLowerCase();
-            return isYearly
-                ? (optId.contains('year') || optId.contains('annual'))
-                : optId.contains('month');
-          }).firstOrNull ?? prod.defaultOption;
+          targetOption =
+              prod.subscriptionOptions!.where((opt) {
+                final optId = opt.id.toLowerCase();
+                return isYearly
+                    ? (optId.contains('year') || optId.contains('annual'))
+                    : optId.contains('month');
+              }).firstOrNull ??
+              prod.defaultOption;
         }
 
         if (targetOption != null) {

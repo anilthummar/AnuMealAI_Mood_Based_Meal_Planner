@@ -862,21 +862,21 @@ class _JudgePromoBottomSheetState extends State<_JudgePromoBottomSheet> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AppBottomSheet(
-      title: 'Redeem Shipaton Judge Code',
+      title: 'Redeem Promo Code',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Tap a preset code below or enter your reviewer token to unlock full premium features.',
+            'Enter your promo code or tap a quick pass below to unlock full AnuMealAI Pro features.',
             textAlign: TextAlign.center,
             style: textTheme.bodySmall?.copyWith(
               color: scheme.onSurfaceVariant,
               height: 1.35,
             ),
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.md),
 
-          // 1-Tap Preset Judge Buttons (§21)
+          // 1-Tap Quick Pass Buttons
           Row(
             children: [
               Expanded(
@@ -889,15 +889,14 @@ class _JudgePromoBottomSheetState extends State<_JudgePromoBottomSheet> {
                         ? AppColors.butterGold
                         : AppColors.primaryGoldDark,
                     elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                       side: BorderSide(
-                        color:
-                            (isDark
-                                    ? AppColors.butterGold
-                                    : AppColors.primaryGold)
-                                .withValues(alpha: 0.5),
+                        color: (isDark
+                                ? AppColors.butterGold
+                                : AppColors.primaryGold)
+                            .withValues(alpha: 0.5),
                       ),
                     ),
                   ),
@@ -908,15 +907,15 @@ class _JudgePromoBottomSheetState extends State<_JudgePromoBottomSheet> {
                         'SHIPATON2026',
                         style: TextStyle(
                           fontWeight: FontWeight.w900,
-                          fontSize: 12,
+                          fontSize: 11,
                         ),
                       ),
-                      Text('1-Tap Unlock 🚀', style: TextStyle(fontSize: 10)),
+                      Text('1-Tap Unlock 🚀', style: TextStyle(fontSize: 9)),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(width: AppSpacing.sm),
+              const SizedBox(width: AppSpacing.xs),
               Expanded(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -927,7 +926,7 @@ class _JudgePromoBottomSheetState extends State<_JudgePromoBottomSheet> {
                         ? const Color(0xFF81C784)
                         : const Color(0xFF2E7D32),
                     elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                       side: BorderSide(
@@ -942,33 +941,91 @@ class _JudgePromoBottomSheetState extends State<_JudgePromoBottomSheet> {
                         'JUDGE_ACCESS',
                         style: TextStyle(
                           fontWeight: FontWeight.w900,
-                          fontSize: 12,
+                          fontSize: 11,
                         ),
                       ),
-                      Text('Judge Pass 🏆', style: TextStyle(fontSize: 10)),
+                      Text('Judge Pass 🏆', style: TextStyle(fontSize: 9)),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isDark
+                        ? const Color(0xFF1E2638)
+                        : const Color(0xFFE0F2FE),
+                    foregroundColor: isDark
+                        ? const Color(0xFF90CAF9)
+                        : const Color(0xFF0284C7),
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        color: const Color(0xFF0284C7).withValues(alpha: 0.4),
+                      ),
+                    ),
+                  ),
+                  onPressed: () => _submit('VIP_PRO'),
+                  child: const Column(
+                    children: [
+                      Text(
+                        'VIP_PRO',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 11,
+                        ),
+                      ),
+                      Text('VIP Pass ⭐', style: TextStyle(fontSize: 9)),
                     ],
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.md),
 
           // Custom Input Field
           AppTextField(
-            label: 'Enter Code manually',
+            label: 'Enter Promo or Play Store Code',
             controller: _controller,
             textCapitalization: TextCapitalization.characters,
             prefixIcon: Icons.card_giftcard_rounded,
             onSubmitted: (val) => _submit(val),
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.md),
 
+          // Action: Redeem In-App
           AppButton(
             label: 'Redeem Code ✨',
             onPressed: () => _submit(_controller.text),
           ),
           const SizedBox(height: AppSpacing.sm),
+
+          // Action: Redeem via Google Play Store
+          OutlinedButton.icon(
+            icon: const Icon(Icons.shopping_bag_outlined, size: 18),
+            label: const Text(
+              'Redeem on Google Play Store 🛍️',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+              ),
+            ),
+            onPressed: () async {
+              final code = _controller.text.trim();
+              Navigator.pop(context);
+              await UrlLauncherService.openPlayStoreRedeem(
+                code.isNotEmpty ? code : null,
+              );
+            },
+          ),
+          const SizedBox(height: AppSpacing.xs),
 
           Center(
             child: TextButton.icon(
