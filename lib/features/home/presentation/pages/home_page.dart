@@ -71,7 +71,7 @@ class _HomePageState extends State<HomePage> {
             builder: (context, state) {
               if (state.status == HomeStatus.loading &&
                   state.quickSuggestions.isEmpty) {
-                return const ListSkeleton(count: 6);
+                return const HomeScreenSkeleton();
               }
 
               final moodState = context.watch<MoodCubit>().state;

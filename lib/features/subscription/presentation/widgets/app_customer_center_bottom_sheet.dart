@@ -373,7 +373,26 @@ class AppCustomerCenterBottomSheet extends StatelessWidget {
                         .read<SubscriptionCubit>()
                         .presentCustomerCenter(),
                   ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 10),
+
+                  // If Promo active: Reset to free tier to test store billing
+                  if (isPromo) ...[
+                    _CustomerCenterActionTile(
+                      icon: Icons.restart_alt_rounded,
+                      iconColor: isDark
+                          ? AppColors.butterGold
+                          : AppColors.primaryGoldDark,
+                      title: 'Reset to Free Starter Plan',
+                      subtitle:
+                          'Deactivate promo pass to test Google Play purchase checkout',
+                      onTap: () {
+                        context.read<SubscriptionCubit>().resetToFreeTier();
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                  const SizedBox(height: 8),
 
                   // Legal Links Footer
                   Row(

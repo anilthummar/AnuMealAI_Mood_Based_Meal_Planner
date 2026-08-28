@@ -69,8 +69,8 @@ class GeminiAiRecipeService implements AIRecipeService {
         data: payload,
         options: Options(
           headers: {'Content-Type': 'application/json'},
-          sendTimeout: const Duration(seconds: 15),
-          receiveTimeout: const Duration(seconds: 25),
+          sendTimeout: const Duration(seconds: 4),
+          receiveTimeout: const Duration(seconds: 6),
         ),
       );
 

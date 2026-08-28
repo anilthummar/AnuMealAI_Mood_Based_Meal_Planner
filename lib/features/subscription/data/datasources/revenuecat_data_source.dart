@@ -183,13 +183,28 @@ class RevenueCatDataSource {
   }
 
   Future<CustomerInfo?> purchaseProduct(String productId) async {
-    if (!_isConfigured) return null;
+    if (!_isConfigured) {
+      await initialize();
+    }
+    if (!_isConfigured) {
+      throw Exception('Store connection is initializing. Please try again.');
+    }
+
     try {
       final offerings = await getOfferings();
-      if (offerings != null && offerings.current != null) {
-        // Look for matching package by identifier (monthly/yearly), packageType, or product identifier
+      Package? targetPkg;
+
+      if (offerings != null) {
+        final allPackages = <Package>[];
+        if (offerings.current != null) {
+          allPackages.addAll(offerings.current!.availablePackages);
+        }
+        for (final off in offerings.all.values) {
+          allPackages.addAll(off.availablePackages);
+        }
+
         final cleanId = productId.toLowerCase();
-        final pkg = offerings.current!.availablePackages.where((p) {
+        targetPkg = allPackages.where((p) {
           final pkgId = p.identifier.toLowerCase();
           final prodId = p.storeProduct.identifier.toLowerCase();
           final isMonthlyMatch =
@@ -210,15 +225,39 @@ class RevenueCatDataSource {
               isMonthlyMatch ||
               isYearlyMatch;
         }).firstOrNull;
-
-        if (pkg != null) {
-          final result = await Purchases.purchase(PurchaseParams.package(pkg));
-          _handleCustomerInfo(result.customerInfo);
-          return result.customerInfo;
-        }
       }
-      return null;
+
+      if (targetPkg != null) {
+        final result = await Purchases.purchase(
+          PurchaseParams.package(targetPkg),
+        );
+        _handleCustomerInfo(result.customerInfo);
+        return result.customerInfo;
+      }
+
+      // If no offering package matched, attempt direct store product purchase
+      final storeProducts = await Purchases.getProducts([
+        productId,
+        'anumealai_premium:monthly',
+        'anumealai_premium:yearly',
+        'monthly',
+        'yearly',
+      ]);
+
+      if (storeProducts.isNotEmpty) {
+        final prod = storeProducts.first;
+        final result = await Purchases.purchase(
+          PurchaseParams.storeProduct(prod),
+        );
+        _handleCustomerInfo(result.customerInfo);
+        return result.customerInfo;
+      }
+
+      throw Exception(
+        'Subscription product ($productId) not found in store offering. Please check Play Store test track.',
+      );
     } catch (e) {
+      debugPrint('[RevenueCat] purchaseProduct error: $e');
       rethrow;
     }
   }

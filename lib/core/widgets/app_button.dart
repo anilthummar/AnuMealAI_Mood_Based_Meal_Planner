@@ -30,17 +30,35 @@ class AppButton extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
 
     final content = isLoading
-        ? SizedBox(
-            height: 20,
-            width: 20,
-            child: CircularProgressIndicator(
-              strokeWidth: 2.5,
-              color:
-                  foregroundColor ??
-                  (variant == AppButtonVariant.primary
-                      ? scheme.onPrimary
-                      : scheme.primary),
-            ),
+        ? Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 18,
+                width: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.2,
+                  color:
+                      foregroundColor ??
+                      (variant == AppButtonVariant.primary
+                          ? scheme.onPrimary
+                          : scheme.primary),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Please wait...',
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  color:
+                      foregroundColor ??
+                      (variant == AppButtonVariant.primary
+                          ? scheme.onPrimary
+                          : scheme.primary),
+                ),
+              ),
+            ],
           )
         : Row(
             mainAxisSize: MainAxisSize.min,

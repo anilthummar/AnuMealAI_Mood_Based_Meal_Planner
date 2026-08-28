@@ -398,7 +398,7 @@ class _RecipesPageState extends State<RecipesPage> {
 
                 // Content / States
                 if (state.status == RecipeStatus.loading) ...[
-                  const RecipeGridSkeleton(count: 4),
+                  const RecipeListSkeleton(count: 3),
                 ] else if (state.status == RecipeStatus.error) ...[
                   if (state.errorMessage == 'DAILY_LIMIT_REACHED' &&
                       !isPremium &&

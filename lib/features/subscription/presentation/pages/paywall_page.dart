@@ -23,6 +23,7 @@ class PaywallPage extends StatefulWidget {
 
 class _PaywallPageState extends State<PaywallPage> {
   bool _isYearlySelected = true;
+  bool _showStorePlans = false;
 
   void _showPromoCodeDialog(BuildContext context) {
     AppBottomSheet.show(
@@ -306,6 +307,16 @@ class _PaywallPageState extends State<PaywallPage> {
                       ),
                       const SizedBox(height: AppSpacing.sm),
 
+                      AppButton(
+                        label: _showStorePlans
+                            ? 'Hide Store Purchase Options'
+                            : 'View & Test Store Plans (\$4.99 / \$39.99) 💳',
+                        variant: AppButtonVariant.outlined,
+                        onPressed: () =>
+                            setState(() => _showStorePlans = !_showStorePlans),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+
                       Center(
                         child: TextButton.icon(
                           icon: const Icon(
@@ -329,7 +340,13 @@ class _PaywallPageState extends State<PaywallPage> {
                           onPressed: () => _showPromoCodeDialog(context),
                         ),
                       ),
-                    ] else ...[
+                      if (_showStorePlans) ...[
+                        const SizedBox(height: AppSpacing.lg),
+                        const Divider(),
+                        const SizedBox(height: AppSpacing.md),
+                      ],
+                    ],
+                    if (!isPremium || _showStorePlans) ...[
                       // ============================================
                       // ⚡ PREVIEW: UPGRADE / PURCHASE VIEW
                       // ============================================
@@ -870,6 +887,21 @@ class _JudgePromoBottomSheetState extends State<_JudgePromoBottomSheet> {
             onPressed: () => _submit(_controller.text),
           ),
           const SizedBox(height: AppSpacing.sm),
+
+          Center(
+            child: TextButton.icon(
+              icon: const Icon(Icons.restart_alt_rounded, size: 18),
+              label: const Text(
+                'Reset to Free Starter (Test Store Billing)',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+              ),
+              onPressed: () {
+                context.read<SubscriptionCubit>().resetToFreeTier();
+                Navigator.pop(context);
+              },
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
         ],
       ),
     );

@@ -12,14 +12,15 @@ class AppConfig {
   );
 
   /// Public/mobile-safe RevenueCat SDK key for the current platform.
+  /// Public/mobile-safe RevenueCat SDK key for the current platform.
   /// Keys are dynamically resolved from Firebase Remote Config at runtime.
   static const String revenueCatApiKeyAndroid = String.fromEnvironment(
     'REVENUECAT_API_KEY_ANDROID',
-    defaultValue: '',
+    defaultValue: 'goog_HcIJqcEpkSzgUbaFzaNwNrXyqqO',
   );
   static const String revenueCatApiKeyIos = String.fromEnvironment(
     'REVENUECAT_API_KEY_IOS',
-    defaultValue: '',
+    defaultValue: 'test_GRcIzLgwSeOerbbBzAMMHbWyXhX',
   );
 
   /// Direct Google Gemini API configuration (§11)
@@ -30,7 +31,7 @@ class AppConfig {
   );
   static const String geminiModel = String.fromEnvironment(
     'GEMINI_MODEL',
-    defaultValue: 'gemini-3.6-flash',
+    defaultValue: 'gemini-2.0-flash',
   );
 
   static bool get isConfigured => geminiApiKey.isNotEmpty;

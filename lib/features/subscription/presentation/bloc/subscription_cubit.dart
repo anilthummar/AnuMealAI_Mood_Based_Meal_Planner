@@ -148,6 +148,25 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
     return false;
   }
 
+  /// Resets mock promo access to test real Google Play store purchase flows
+  Future<void> resetToFreeTier() async {
+    if (subscriptionRepository is SubscriptionRepositoryImpl) {
+      await (subscriptionRepository as SubscriptionRepositoryImpl)
+          .setJudgeAccess(false);
+    }
+    emit(
+      state.copyWith(
+        subscription: const SubscriptionEntity(
+          tier: SubscriptionTier.free,
+          status: SubscriptionStatus.free,
+        ),
+        successMessage:
+            'Switched to Free Tier. Ready to test Google Play checkout.',
+      ),
+    );
+    await loadSubscription();
+  }
+
   Future<bool> presentNativePaywall() async {
     final unlocked = await subscriptionRepository.presentPaywall();
     if (unlocked) {

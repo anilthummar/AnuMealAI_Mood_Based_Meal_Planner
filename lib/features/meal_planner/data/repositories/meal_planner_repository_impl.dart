@@ -36,50 +36,54 @@ class MealPlannerRepositoryImpl implements MealPlannerRepository {
     final entries = <MealPlanEntryModel>[];
     final now = DateTime.now();
 
-    // Fetch batch recipes for breakfast, lunch, dinner, snack
-    final breakfastList = await recipeRepository.generateRecipes(
-      moodId: moodId,
-      moodTraits: moodTraits,
-      availableIngredients: availableIngredients,
-      mealType: 'breakfast',
-      maxCookingTimeMinutes: 20,
-      dietaryPreferences: dietaryRestrictions,
-      cuisinePreferences: favoriteCuisines,
-      count: 7,
-    );
+    // Fetch batch recipes for breakfast, lunch, dinner, snack in parallel
+    final results = await Future.wait([
+      recipeRepository.generateRecipes(
+        moodId: moodId,
+        moodTraits: moodTraits,
+        availableIngredients: availableIngredients,
+        mealType: 'breakfast',
+        maxCookingTimeMinutes: 20,
+        dietaryPreferences: dietaryRestrictions,
+        cuisinePreferences: favoriteCuisines,
+        count: 7,
+      ),
+      recipeRepository.generateRecipes(
+        moodId: moodId,
+        moodTraits: moodTraits,
+        availableIngredients: availableIngredients,
+        mealType: 'lunch',
+        maxCookingTimeMinutes: 30,
+        dietaryPreferences: dietaryRestrictions,
+        cuisinePreferences: favoriteCuisines,
+        count: 7,
+      ),
+      recipeRepository.generateRecipes(
+        moodId: moodId,
+        moodTraits: moodTraits,
+        availableIngredients: availableIngredients,
+        mealType: 'dinner',
+        maxCookingTimeMinutes: 45,
+        dietaryPreferences: dietaryRestrictions,
+        cuisinePreferences: favoriteCuisines,
+        count: 7,
+      ),
+      recipeRepository.generateRecipes(
+        moodId: moodId,
+        moodTraits: moodTraits,
+        availableIngredients: availableIngredients,
+        mealType: 'snack',
+        maxCookingTimeMinutes: 15,
+        dietaryPreferences: dietaryRestrictions,
+        cuisinePreferences: favoriteCuisines,
+        count: 7,
+      ),
+    ]);
 
-    final lunchList = await recipeRepository.generateRecipes(
-      moodId: moodId,
-      moodTraits: moodTraits,
-      availableIngredients: availableIngredients,
-      mealType: 'lunch',
-      maxCookingTimeMinutes: 30,
-      dietaryPreferences: dietaryRestrictions,
-      cuisinePreferences: favoriteCuisines,
-      count: 7,
-    );
-
-    final dinnerList = await recipeRepository.generateRecipes(
-      moodId: moodId,
-      moodTraits: moodTraits,
-      availableIngredients: availableIngredients,
-      mealType: 'dinner',
-      maxCookingTimeMinutes: 45,
-      dietaryPreferences: dietaryRestrictions,
-      cuisinePreferences: favoriteCuisines,
-      count: 7,
-    );
-
-    final snackList = await recipeRepository.generateRecipes(
-      moodId: moodId,
-      moodTraits: moodTraits,
-      availableIngredients: availableIngredients,
-      mealType: 'snack',
-      maxCookingTimeMinutes: 15,
-      dietaryPreferences: dietaryRestrictions,
-      cuisinePreferences: favoriteCuisines,
-      count: 7,
-    );
+    final breakfastList = results[0];
+    final lunchList = results[1];
+    final dinnerList = results[2];
+    final snackList = results[3];
 
     for (int i = 0; i < WeeklyMealPlan.days.length; i++) {
       final day = WeeklyMealPlan.days[i];
@@ -89,10 +93,38 @@ class MealPlannerRepositoryImpl implements MealPlannerRepository {
       final dRecipe = dinnerList[i % dinnerList.length];
       final sRecipe = snackList[i % snackList.length];
 
-      entries.add(MealPlanEntryModel(id: _uuid.v4(), dayOfWeek: day, mealSlot: 'Breakfast', recipe: bRecipe));
-      entries.add(MealPlanEntryModel(id: _uuid.v4(), dayOfWeek: day, mealSlot: 'Lunch', recipe: lRecipe));
-      entries.add(MealPlanEntryModel(id: _uuid.v4(), dayOfWeek: day, mealSlot: 'Dinner', recipe: dRecipe));
-      entries.add(MealPlanEntryModel(id: _uuid.v4(), dayOfWeek: day, mealSlot: 'Snack', recipe: sRecipe));
+      entries.add(
+        MealPlanEntryModel(
+          id: _uuid.v4(),
+          dayOfWeek: day,
+          mealSlot: 'Breakfast',
+          recipe: bRecipe,
+        ),
+      );
+      entries.add(
+        MealPlanEntryModel(
+          id: _uuid.v4(),
+          dayOfWeek: day,
+          mealSlot: 'Lunch',
+          recipe: lRecipe,
+        ),
+      );
+      entries.add(
+        MealPlanEntryModel(
+          id: _uuid.v4(),
+          dayOfWeek: day,
+          mealSlot: 'Dinner',
+          recipe: dRecipe,
+        ),
+      );
+      entries.add(
+        MealPlanEntryModel(
+          id: _uuid.v4(),
+          dayOfWeek: day,
+          mealSlot: 'Snack',
+          recipe: sRecipe,
+        ),
+      );
     }
 
     final plan = WeeklyMealPlanModel(
