@@ -1,3 +1,4 @@
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 
 import '../../../../core/errors/failures.dart';
@@ -6,6 +7,7 @@ import '../../../../core/utils/result.dart';
 import '../../domain/entities/subscription_entity.dart';
 import '../../domain/repositories/subscription_repository.dart';
 import '../datasources/revenuecat_data_source.dart';
+import '../utils/subscription_error_mapper.dart';
 
 class SubscriptionRepositoryImpl
     implements SubscriptionRepository, PremiumStatusProvider {
@@ -35,10 +37,15 @@ class SubscriptionRepositoryImpl
         return Result.success(dataSource.lastKnownState);
       }
       return const Result.failure(
-        SubscriptionFailure('Purchase could not be completed.'),
+        SubscriptionFailure('Google Play purchase was not completed.'),
       );
     } catch (e) {
-      return Result.failure(SubscriptionFailure(e.toString()));
+      final friendly = SubscriptionErrorMapper.mapErrorToUserFriendlyMessage(e);
+      if (friendly == null) {
+        // User cancelled, return empty string so UI doesn't show an error
+        return const Result.failure(SubscriptionFailure(''));
+      }
+      return Result.failure(SubscriptionFailure(friendly));
     }
   }
 
@@ -50,40 +57,86 @@ class SubscriptionRepositoryImpl
         return Result.success(dataSource.lastKnownState);
       }
       return const Result.failure(
-        SubscriptionFailure('No active subscriptions found to restore.'),
+        SubscriptionFailure(
+          'No active subscriptions found to restore on Google Play.',
+        ),
       );
     } catch (e) {
-      return Result.failure(
-        SubscriptionFailure('Error restoring purchases: $e'),
-      );
+      final friendly =
+          SubscriptionErrorMapper.mapErrorToUserFriendlyMessage(e) ??
+          'Unable to restore purchases at this time.';
+      return Result.failure(SubscriptionFailure(friendly));
     }
   }
 
   @override
   Future<Map<String, dynamic>> getOfferings() async {
+    String? monthlyPrice;
+    String? yearlyPrice;
+
     final offerings = await dataSource.getOfferings();
-    if (offerings == null || offerings.current == null) {
-      return {};
+    if (offerings != null) {
+      Package? monthlyPkg = offerings.current?.monthly;
+      Package? annualPkg = offerings.current?.annual;
+
+      if (monthlyPkg == null || annualPkg == null) {
+        for (final off in offerings.all.values) {
+          monthlyPkg ??= off.monthly;
+          annualPkg ??= off.annual;
+        }
+      }
+
+      if (monthlyPkg != null) monthlyPrice = monthlyPkg.storeProduct.priceString;
+      if (annualPkg != null) yearlyPrice = annualPkg.storeProduct.priceString;
     }
-    return {
-      'current': offerings.current!.identifier,
-      'monthly':
-          offerings.current!.monthly?.storeProduct.priceString ?? '\$4.99/mo',
-      'annual':
-          offerings.current!.annual?.storeProduct.priceString ?? '\$39.99/yr',
-    };
+
+    if (monthlyPrice == null || yearlyPrice == null) {
+      final prods = await dataSource.getStoreProducts();
+      for (final p in prods) {
+        if (p.subscriptionOptions != null) {
+          for (final opt in p.subscriptionOptions!) {
+            final optId = opt.id.toLowerCase();
+            final price = opt.pricingPhases.isNotEmpty
+                ? opt.pricingPhases.last.price.formatted
+                : p.priceString;
+            if (optId.contains('month') && monthlyPrice == null) {
+              monthlyPrice = price;
+            } else if ((optId.contains('year') || optId.contains('annual')) &&
+                yearlyPrice == null) {
+              yearlyPrice = price;
+            }
+          }
+        }
+        if (p.identifier.toLowerCase().contains('month') &&
+            monthlyPrice == null) {
+          monthlyPrice = p.priceString;
+        }
+        if ((p.identifier.toLowerCase().contains('year') ||
+                p.identifier.toLowerCase().contains('annual')) &&
+            yearlyPrice == null) {
+          yearlyPrice = p.priceString;
+        }
+      }
+    }
+
+    final map = <String, dynamic>{};
+    if (monthlyPrice != null) map['monthly'] = monthlyPrice;
+    if (yearlyPrice != null) map['annual'] = yearlyPrice;
+    return map;
   }
 
   @override
   Future<bool> presentPaywall() async {
     final result = await dataSource.presentPaywall();
-    return result == PaywallResult.purchased || result == PaywallResult.restored;
+    return result == PaywallResult.purchased ||
+        result == PaywallResult.restored;
   }
 
   @override
   Future<bool> presentPaywallIfNeeded() async {
     final result = await dataSource.presentPaywallIfNeeded();
-    return result == PaywallResult.purchased || result == PaywallResult.restored;
+    return result == PaywallResult.purchased ||
+        result == PaywallResult.restored;
   }
 
   @override

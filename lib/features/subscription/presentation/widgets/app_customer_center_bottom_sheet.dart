@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/constants/app_config.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../data/utils/subscription_error_mapper.dart';
 import '../bloc/subscription_cubit.dart';
 import '../bloc/subscription_state.dart';
 
@@ -65,11 +66,16 @@ class AppCustomerCenterBottomSheet extends StatelessWidget {
 
     return BlocConsumer<SubscriptionCubit, SubscriptionState>(
       listener: (context, state) {
-        if (state.errorMessage != null) {
+        if (state.errorMessage != null &&
+            state.errorMessage!.trim().isNotEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.errorMessage!),
-              backgroundColor: AppColors.error,
+              content: Text(
+                state.errorMessage == SubscriptionErrorMapper.storePendingCode
+                    ? 'Google Play is currently reviewing billing for this version. You can unlock features with the Promo Pass.'
+                    : state.errorMessage!,
+              ),
+              backgroundColor: const Color(0xFFD97706),
               behavior: SnackBarBehavior.floating,
             ),
           );

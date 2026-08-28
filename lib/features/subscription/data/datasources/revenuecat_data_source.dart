@@ -190,6 +190,8 @@ class RevenueCatDataSource {
       throw Exception('Store connection is initializing. Please try again.');
     }
 
+    final cleanId = productId.toLowerCase();
+
     try {
       final offerings = await getOfferings();
       Package? targetPkg;
@@ -203,7 +205,6 @@ class RevenueCatDataSource {
           allPackages.addAll(off.availablePackages);
         }
 
-        final cleanId = productId.toLowerCase();
         targetPkg = allPackages.where((p) {
           final pkgId = p.identifier.toLowerCase();
           final prodId = p.storeProduct.identifier.toLowerCase();
@@ -235,8 +236,9 @@ class RevenueCatDataSource {
         return result.customerInfo;
       }
 
-      // If no offering package matched, attempt direct store product purchase
+      // If no offering package matched, attempt direct store product purchase with subscription options
       final storeProducts = await Purchases.getProducts([
+        'anumealai_premium',
         productId,
         'anumealai_premium:monthly',
         'anumealai_premium:yearly',
@@ -246,11 +248,33 @@ class RevenueCatDataSource {
 
       if (storeProducts.isNotEmpty) {
         final prod = storeProducts.first;
-        final result = await Purchases.purchase(
-          PurchaseParams.storeProduct(prod),
-        );
-        _handleCustomerInfo(result.customerInfo);
-        return result.customerInfo;
+        final isYearly =
+            cleanId.contains('year') || cleanId.contains('annual');
+
+        SubscriptionOption? targetOption;
+        if (prod.subscriptionOptions != null &&
+            prod.subscriptionOptions!.isNotEmpty) {
+          targetOption = prod.subscriptionOptions!.where((opt) {
+            final optId = opt.id.toLowerCase();
+            return isYearly
+                ? (optId.contains('year') || optId.contains('annual'))
+                : optId.contains('month');
+          }).firstOrNull ?? prod.defaultOption;
+        }
+
+        if (targetOption != null) {
+          final result = await Purchases.purchase(
+            PurchaseParams.subscriptionOption(targetOption),
+          );
+          _handleCustomerInfo(result.customerInfo);
+          return result.customerInfo;
+        } else {
+          final result = await Purchases.purchase(
+            PurchaseParams.storeProduct(prod),
+          );
+          _handleCustomerInfo(result.customerInfo);
+          return result.customerInfo;
+        }
       }
 
       throw Exception(
@@ -259,6 +283,23 @@ class RevenueCatDataSource {
     } catch (e) {
       debugPrint('[RevenueCat] purchaseProduct error: $e');
       rethrow;
+    }
+  }
+
+  Future<List<StoreProduct>> getStoreProducts() async {
+    if (!_isConfigured) {
+      await initialize();
+    }
+    if (!_isConfigured) return [];
+    try {
+      return await Purchases.getProducts([
+        'anumealai_premium',
+        SubscriptionConfig.monthlyProductId,
+        SubscriptionConfig.yearlyProductId,
+      ]);
+    } catch (e) {
+      debugPrint('[RevenueCat] Error getting store products: $e');
+      return [];
     }
   }
 

@@ -31,7 +31,7 @@ class AppConfig {
   );
   static const String geminiModel = String.fromEnvironment(
     'GEMINI_MODEL',
-    defaultValue: 'gemini-2.0-flash',
+    defaultValue: 'gemini-3.6-flash',
   );
 
   static bool get isConfigured => geminiApiKey.isNotEmpty;

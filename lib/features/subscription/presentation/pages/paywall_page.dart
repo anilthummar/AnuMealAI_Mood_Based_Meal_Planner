@@ -10,6 +10,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../data/utils/subscription_error_mapper.dart';
 import '../bloc/subscription_cubit.dart';
 import '../bloc/subscription_state.dart';
 import '../widgets/app_customer_center_bottom_sheet.dart';
@@ -36,6 +37,78 @@ class _PaywallPageState extends State<PaywallPage> {
     );
   }
 
+  void _showStorePendingNoticeDialog(BuildContext context) {
+    AppBottomSheet.show(
+      context: context,
+      builder: (ctx) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final textTheme = Theme.of(context).textTheme;
+        final scheme = Theme.of(context).colorScheme;
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? AppColors.butterGold.withValues(alpha: 0.15)
+                      : AppColors.golden.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.storefront_rounded,
+                    color: AppColors.golden,
+                    size: 32,
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                'Google Play Store Notice',
+                style: textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                'Google Play is currently reviewing in-app billing configuration for this build version.\n\nAs a tester or reviewer, you can unlock full AnuMealAI Pro features instantly using the Judge / Promo Pass below.',
+                textAlign: TextAlign.center,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              AppButton(
+                label: 'Unlock Full Pro Pass (SHIPATON2026) 🚀',
+                backgroundColor: isDark
+                    ? AppColors.butterGold
+                    : AppColors.primaryGold,
+                foregroundColor: const Color(0xFF141414),
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  context.read<SubscriptionCubit>().redeemPromoOrTrial(
+                    'SHIPATON2026',
+                  );
+                },
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Dismiss'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -52,12 +125,17 @@ class _PaywallPageState extends State<PaywallPage> {
           );
           context.read<SubscriptionCubit>().clearMessages();
         }
-        if (state.errorMessage != null) {
-          AppSnackbar.show(
-            context,
-            message: state.errorMessage!,
-            variant: SnackbarVariant.error,
-          );
+        if (state.errorMessage != null &&
+            state.errorMessage!.trim().isNotEmpty) {
+          if (state.errorMessage == SubscriptionErrorMapper.storePendingCode) {
+            _showStorePendingNoticeDialog(context);
+          } else {
+            AppSnackbar.show(
+              context,
+              message: state.errorMessage!,
+              variant: SnackbarVariant.warning,
+            );
+          }
           context.read<SubscriptionCubit>().clearMessages();
         }
       },
@@ -459,7 +537,9 @@ class _PaywallPageState extends State<PaywallPage> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      '\$4.99 / month',
+                                      state.monthlyPrice.contains('/')
+                                          ? state.monthlyPrice
+                                          : '${state.monthlyPrice} / month',
                                       style: textTheme.bodyLarge?.copyWith(
                                         fontWeight: FontWeight.w700,
                                         color: scheme.primary,
@@ -507,7 +587,9 @@ class _PaywallPageState extends State<PaywallPage> {
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
-                                          '\$39.99 / year',
+                                          state.yearlyPrice.contains('/')
+                                              ? state.yearlyPrice
+                                              : '${state.yearlyPrice} / year',
                                           style: textTheme.bodyLarge?.copyWith(
                                             fontWeight: FontWeight.w700,
                                             color: scheme.primary,
@@ -515,7 +597,7 @@ class _PaywallPageState extends State<PaywallPage> {
                                         ),
                                         const SizedBox(height: 2),
                                         Text(
-                                          '\$3.33 / mo (Save 33%)',
+                                          'Save ~33% annually',
                                           style: textTheme.bodySmall?.copyWith(
                                             color: AppColors.sage,
                                             fontWeight: FontWeight.w700,

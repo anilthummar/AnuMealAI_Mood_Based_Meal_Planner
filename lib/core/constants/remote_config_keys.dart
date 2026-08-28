@@ -61,7 +61,7 @@ class RemoteConfigDefaults {
     RemoteConfigKeys.enableNewHome: true,
     RemoteConfigKeys.enablePremiumFeatures: true,
     RemoteConfigKeys.geminiApiKey: '',
-    RemoteConfigKeys.geminiModel: 'gemini-2.0-flash',
+    RemoteConfigKeys.geminiModel: 'gemini-3.6-flash',
     RemoteConfigKeys.revenueCatApiKeyAndroid:
         'goog_HcIJqcEpkSzgUbaFzaNwNrXyqqO',
     RemoteConfigKeys.revenueCatApiKeyIos: 'test_GRcIzLgwSeOerbbBzAMMHbWyXhX',
