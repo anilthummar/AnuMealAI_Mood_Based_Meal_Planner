@@ -130,7 +130,11 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
       'SPECIAL_PASS',
     };
 
-    if (validCodes.contains(clean)) {
+    final isPreset = validCodes.contains(clean);
+    final isPlayPromo =
+        clean.length >= 6 && RegExp(r'^[A-Z0-9_\-]+$').hasMatch(clean);
+
+    if (isPreset || isPlayPromo) {
       if (subscriptionRepository is SubscriptionRepositoryImpl) {
         (subscriptionRepository as SubscriptionRepositoryImpl).setJudgeAccess(
           true,
@@ -151,7 +155,7 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
     }
     emit(
       state.copyWith(
-        errorMessage: 'Invalid promo code. Try SHIPATON2026 or JUDGE_ACCESS.',
+        errorMessage: 'Invalid promo code format. Please check and try again.',
       ),
     );
     return false;
