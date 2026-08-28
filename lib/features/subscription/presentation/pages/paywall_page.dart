@@ -45,14 +45,13 @@ class _PaywallPageState extends State<PaywallPage> {
         final textTheme = Theme.of(context).textTheme;
         final scheme = Theme.of(context).colorScheme;
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+        return AppBottomSheet(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 64,
-                height: 64,
+                width: 56,
+                height: 56,
                 decoration: BoxDecoration(
                   color: isDark
                       ? AppColors.butterGold.withValues(alpha: 0.15)
@@ -63,7 +62,7 @@ class _PaywallPageState extends State<PaywallPage> {
                   child: Icon(
                     Icons.storefront_rounded,
                     color: AppColors.golden,
-                    size: 32,
+                    size: 28,
                   ),
                 ),
               ),
@@ -74,7 +73,7 @@ class _PaywallPageState extends State<PaywallPage> {
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              const SizedBox(height: AppSpacing.xs),
+              const SizedBox(height: AppSpacing.sm),
               Text(
                 'Google Play is currently reviewing in-app billing configuration for this build version.\n\nAs a tester or reviewer, you can unlock full AnuMealAI Pro features instantly using the Judge / Promo Pass below.',
                 textAlign: TextAlign.center,
@@ -97,10 +96,16 @@ class _PaywallPageState extends State<PaywallPage> {
                   );
                 },
               ),
-              const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: AppSpacing.xs),
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: const Text('Dismiss'),
+                child: Text(
+                  'Dismiss',
+                  style: TextStyle(
+                    color: scheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ],
           ),
