@@ -263,11 +263,25 @@ class _ProfilePageState extends State<ProfilePage> {
               label: 'Your Name',
               controller: controller,
               prefixIcon: Icons.person_outline_rounded,
+              textInputAction: TextInputAction.done,
+              onSubmitted: (val) {
+                if (val.trim().isNotEmpty) {
+                  FocusScope.of(ctx).unfocus();
+                  context.read<ProfileCubit>().updateName(val.trim());
+                  Navigator.pop(ctx);
+                  AppSnackbar.show(
+                    context,
+                    message: 'Name updated! ✨',
+                    variant: SnackbarVariant.success,
+                  );
+                }
+              },
             ),
             const SizedBox(height: AppSpacing.lg),
             AppButton(
               label: 'Save Name',
               onPressed: () {
+                FocusScope.of(ctx).unfocus();
                 if (controller.text.trim().isNotEmpty) {
                   context.read<ProfileCubit>().updateName(
                     controller.text.trim(),

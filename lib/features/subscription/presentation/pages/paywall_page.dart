@@ -45,13 +45,14 @@ class _PaywallPageState extends State<PaywallPage> {
         final textTheme = Theme.of(context).textTheme;
         final scheme = Theme.of(context).colorScheme;
 
-        return AppBottomSheet(
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 56,
-                height: 56,
+                width: 64,
+                height: 64,
                 decoration: BoxDecoration(
                   color: isDark
                       ? AppColors.butterGold.withValues(alpha: 0.15)
@@ -62,7 +63,7 @@ class _PaywallPageState extends State<PaywallPage> {
                   child: Icon(
                     Icons.storefront_rounded,
                     color: AppColors.golden,
-                    size: 28,
+                    size: 32,
                   ),
                 ),
               ),
@@ -73,7 +74,7 @@ class _PaywallPageState extends State<PaywallPage> {
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: AppSpacing.xs),
               Text(
                 'Google Play is currently reviewing in-app billing configuration for this build version.\n\nAs a tester or reviewer, you can unlock full AnuMealAI Pro features instantly using the Judge / Promo Pass below.',
                 textAlign: TextAlign.center,
@@ -96,16 +97,10 @@ class _PaywallPageState extends State<PaywallPage> {
                   );
                 },
               ),
-              const SizedBox(height: AppSpacing.xs),
+              const SizedBox(height: AppSpacing.sm),
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: Text(
-                  'Dismiss',
-                  style: TextStyle(
-                    color: scheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                child: const Text('Dismiss'),
               ),
             ],
           ),
@@ -393,7 +388,7 @@ class _PaywallPageState extends State<PaywallPage> {
                       AppButton(
                         label: _showStorePlans
                             ? 'Hide Store Purchase Options'
-                            : 'View Store Pricing Plans (${state.monthlyPrice} / ${state.yearlyPrice}) 💳',
+                            : 'View & Test Store Plans (\$4.99 / \$39.99) 💳',
                         variant: AppButtonVariant.outlined,
                         onPressed: () =>
                             setState(() => _showStorePlans = !_showStorePlans),
@@ -419,7 +414,7 @@ class _PaywallPageState extends State<PaywallPage> {
                             Icons.confirmation_num_outlined,
                             size: 16,
                           ),
-                          label: const Text('Judge / Promo Code Settings'),
+                          label: const Text('Redeem Promo Code'),
                           onPressed: () => _showPromoCodeDialog(context),
                         ),
                       ),
@@ -682,7 +677,7 @@ class _PaywallPageState extends State<PaywallPage> {
                           TextButton(
                             onPressed: () => _showPromoCodeDialog(context),
                             child: const Text(
-                              'Judge / Promo Code',
+                              'Redeem Code',
                               style: TextStyle(
                                 color: AppColors.primaryGoldDark,
                                 fontWeight: FontWeight.w800,
@@ -864,7 +859,6 @@ class _JudgePromoBottomSheetState extends State<_JudgePromoBottomSheet> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AppBottomSheet(
       title: 'Redeem Promo Code',
@@ -872,132 +866,23 @@ class _JudgePromoBottomSheetState extends State<_JudgePromoBottomSheet> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Enter your promo code or tap a quick pass below to unlock full AnuMealAI Pro features.',
+            'Enter your promo code or redemption code to unlock AnuMealAI Pro.',
             textAlign: TextAlign.center,
             style: textTheme.bodySmall?.copyWith(
               color: scheme.onSurfaceVariant,
               height: 1.35,
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
-
-          // 1-Tap Quick Pass Buttons
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isDark
-                        ? const Color(0xFF2C2416)
-                        : const Color(0xFFFEF3C7),
-                    foregroundColor: isDark
-                        ? AppColors.butterGold
-                        : AppColors.primaryGoldDark,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(
-                        color: (isDark
-                                ? AppColors.butterGold
-                                : AppColors.primaryGold)
-                            .withValues(alpha: 0.5),
-                      ),
-                    ),
-                  ),
-                  onPressed: () => _submit('SHIPATON2026'),
-                  child: const Column(
-                    children: [
-                      Text(
-                        'SHIPATON2026',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 11,
-                        ),
-                      ),
-                      Text('1-Tap Unlock 🚀', style: TextStyle(fontSize: 9)),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isDark
-                        ? const Color(0xFF242C20)
-                        : const Color(0xFFE8F5E9),
-                    foregroundColor: isDark
-                        ? const Color(0xFF81C784)
-                        : const Color(0xFF2E7D32),
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(
-                        color: const Color(0xFF2E7D32).withValues(alpha: 0.4),
-                      ),
-                    ),
-                  ),
-                  onPressed: () => _submit('JUDGE_ACCESS'),
-                  child: const Column(
-                    children: [
-                      Text(
-                        'JUDGE_ACCESS',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 11,
-                        ),
-                      ),
-                      Text('Judge Pass 🏆', style: TextStyle(fontSize: 9)),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isDark
-                        ? const Color(0xFF1E2638)
-                        : const Color(0xFFE0F2FE),
-                    foregroundColor: isDark
-                        ? const Color(0xFF90CAF9)
-                        : const Color(0xFF0284C7),
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(
-                        color: const Color(0xFF0284C7).withValues(alpha: 0.4),
-                      ),
-                    ),
-                  ),
-                  onPressed: () => _submit('VIP_PRO'),
-                  child: const Column(
-                    children: [
-                      Text(
-                        'VIP_PRO',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 11,
-                        ),
-                      ),
-                      Text('VIP Pass ⭐', style: TextStyle(fontSize: 9)),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.lg),
 
           // Custom Input Field
           AppTextField(
-            label: 'Enter Promo or Play Store Code',
+            label: 'Enter Promo Code',
+            hintText: 'e.g. EUNZP3LE3YLXJR5VBBPU65Q',
             controller: _controller,
             textCapitalization: TextCapitalization.characters,
-            prefixIcon: Icons.card_giftcard_rounded,
+            prefixIcon: Icons.confirmation_number_outlined,
+            textInputAction: TextInputAction.done,
             onSubmitted: (val) => _submit(val),
           ),
           const SizedBox(height: AppSpacing.md),
@@ -1029,21 +914,6 @@ class _JudgePromoBottomSheetState extends State<_JudgePromoBottomSheet> {
                 code.isNotEmpty ? code : null,
               );
             },
-          ),
-          const SizedBox(height: AppSpacing.xs),
-
-          Center(
-            child: TextButton.icon(
-              icon: const Icon(Icons.restart_alt_rounded, size: 18),
-              label: const Text(
-                'Reset to Free Starter (Test Store Billing)',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
-              ),
-              onPressed: () {
-                context.read<SubscriptionCubit>().resetToFreeTier();
-                Navigator.pop(context);
-              },
-            ),
           ),
           const SizedBox(height: AppSpacing.xs),
         ],

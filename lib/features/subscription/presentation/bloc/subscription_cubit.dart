@@ -128,6 +128,12 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
       'EARLY_ACCESS',
       'PREMIUM',
       'SPECIAL_PASS',
+      'REVENUECAT',
+      'REVENUECAT_PRO',
+      'HACKATHON',
+      'HACKATHON2026',
+      'PROMO_PASS',
+      'TEST_PRO',
     };
 
     final isPreset = validCodes.contains(clean);

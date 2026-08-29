@@ -246,6 +246,7 @@ class _AddIngredientSheetState extends State<AddIngredientSheet> {
               label: widget.initialIngredient != null ? 'Save Changes' : 'Add Ingredient',
               icon: Icons.check_rounded,
               onPressed: () {
+                FocusScope.of(context).unfocus();
                 if (_nameController.text.trim().isEmpty) return;
                 widget.onSave(
                   name: _nameController.text.trim(),

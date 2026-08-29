@@ -152,6 +152,7 @@ class ShoppingListPage extends StatelessWidget {
                       return;
                     }
 
+                    FocusScope.of(ctx).unfocus();
                     cubit.addItem(
                       name: text,
                       category: selectedCategory,

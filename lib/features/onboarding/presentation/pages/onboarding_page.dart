@@ -38,6 +38,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   void _goToPage(int page) {
+    FocusScope.of(context).unfocus();
     _pageController.animateToPage(
       page,
       duration: const Duration(milliseconds: 350),
@@ -53,159 +54,168 @@ class _OnboardingPageState extends State<OnboardingPage> {
     return BlocConsumer<OnboardingCubit, OnboardingState>(
       listener: (context, state) {
         if (state.status == OnboardingStatus.completed) {
+          FocusScope.of(context).unfocus();
           context.go(AppRoutes.home);
         }
       },
       builder: (context, state) {
         final cubit = context.read<OnboardingCubit>();
 
-        return Scaffold(
-          backgroundColor: scheme.surface,
-          body: SafeArea(
-            child: Column(
-              children: [
-                // Top Progress Bar and Navigation
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.lg,
-                    vertical: AppSpacing.md,
-                  ),
-                  child: Row(
-                    children: [
-                      if (!state.isFirstStep && !state.isLastStep)
-                        IconButton(
-                          icon: Icon(
-                            Icons.chevron_left_rounded,
-                            color: scheme.onSurface,
-                            size: 28,
-                          ),
-                          onPressed: () {
-                            cubit.previousStep();
-                            _goToPage(state.currentStep - 1);
-                          },
-                        )
-                      else
-                        const SizedBox(width: 48),
-                      Expanded(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(
-                            AppSpacing.radiusPill,
-                          ),
-                          child: LinearProgressIndicator(
-                            value: state.progress,
-                            minHeight: 6,
-                            backgroundColor: isDark
-                                ? const Color(0xFF282828)
-                                : scheme.surfaceContainerHighest,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              scheme.primary,
+        return GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          behavior: HitTestBehavior.opaque,
+          child: Scaffold(
+            backgroundColor: scheme.surface,
+            body: SafeArea(
+              child: Column(
+                children: [
+                  // Top Progress Bar and Navigation
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.lg,
+                      vertical: AppSpacing.md,
+                    ),
+                    child: Row(
+                      children: [
+                        if (!state.isFirstStep && !state.isLastStep)
+                          IconButton(
+                            icon: Icon(
+                              Icons.chevron_left_rounded,
+                              color: scheme.onSurface,
+                              size: 28,
+                            ),
+                            onPressed: () {
+                              FocusScope.of(context).unfocus();
+                              cubit.previousStep();
+                              _goToPage(state.currentStep - 1);
+                            },
+                          )
+                        else
+                          const SizedBox(width: 48),
+                        Expanded(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(
+                              AppSpacing.radiusPill,
+                            ),
+                            child: LinearProgressIndicator(
+                              value: state.progress,
+                              minHeight: 6,
+                              backgroundColor: isDark
+                                  ? const Color(0xFF282828)
+                                  : scheme.surfaceContainerHighest,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                scheme.primary,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      if (!state.isLastStep)
-                        TextButton(
-                          onPressed: () async {
-                            await cubit.completeOnboarding();
-                          },
-                          child: Text(
-                            'Skip',
-                            style: TextStyle(
-                              color: scheme.onSurfaceVariant,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14,
+                        if (!state.isLastStep)
+                          TextButton(
+                            onPressed: () async {
+                              FocusScope.of(context).unfocus();
+                              await cubit.completeOnboarding();
+                            },
+                            child: Text(
+                              'Skip',
+                              style: TextStyle(
+                                color: scheme.onSurfaceVariant,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                              ),
                             ),
-                          ),
-                        )
-                      else
-                        const SizedBox(width: 48),
-                    ],
-                  ),
-                ),
-
-                // Page views for steps
-                Expanded(
-                  child: PageView(
-                    controller: _pageController,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: [
-                      _buildWelcomeStep(context, state, cubit),
-                      _buildHowItWorksStep(context, state),
-                      _buildDietaryStep(context, state, cubit),
-                      _buildCuisinesStep(context, state, cubit),
-                      _buildCookingSkillStep(context, state, cubit),
-                      _buildCookingTimeStep(context, state, cubit),
-                      _buildGoalsStep(context, state, cubit),
-                      _buildNotificationsStep(context, state, cubit),
-                      _buildCompleteStep(context, state, cubit),
-                    ],
-                  ),
-                ),
-
-                // Bottom action CTA
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.lg,
-                    AppSpacing.sm,
-                    AppSpacing.lg,
-                    AppSpacing.lg,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      AppButton(
-                        label: state.isLastStep
-                            ? "Let's Cook! 🍳"
-                            : (state.currentStep == 7
-                                  ? (state.preferences.notificationsEnabled
-                                        ? "Continue →"
-                                        : "Enable Notifications 🔔")
-                                  : (state.isFirstStep
-                                        ? "Get Started ✨"
-                                        : "Continue →")),
-                        backgroundColor: isDark
-                            ? AppColors.butterGold
-                            : AppColors.primaryGold,
-                        foregroundColor: const Color(0xFF141414),
-                        isLoading: state.status == OnboardingStatus.completing,
-                        onPressed: () async {
-                          if (state.isFirstStep) {
-                            cubit.updateName(_nameController.text);
-                          }
-                          if (state.currentStep == 7 &&
-                              !state.preferences.notificationsEnabled) {
-                            await cubit.requestNotificationPermission();
-                          }
-                          if (state.isLastStep) {
-                            await cubit.completeOnboarding();
-                          } else {
-                            cubit.nextStep();
-                            _goToPage(state.currentStep + 1);
-                          }
-                        },
-                      ),
-                      if (state.currentStep == 7 &&
-                          !state.preferences.notificationsEnabled) ...[
-                        const SizedBox(height: 8),
-                        TextButton(
-                          onPressed: () {
-                            cubit.nextStep();
-                            _goToPage(state.currentStep + 1);
-                          },
-                          child: Text(
-                            'Maybe Later',
-                            style: TextStyle(
-                              color: scheme.onSurfaceVariant,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
+                          )
+                        else
+                          const SizedBox(width: 48),
                       ],
-                    ],
+                    ),
                   ),
-                ),
-              ],
+
+                  // Page views for steps
+                  Expanded(
+                    child: PageView(
+                      controller: _pageController,
+                      physics: const NeverScrollableScrollPhysics(),
+                      children: [
+                        _buildWelcomeStep(context, state, cubit),
+                        _buildHowItWorksStep(context, state),
+                        _buildDietaryStep(context, state, cubit),
+                        _buildCuisinesStep(context, state, cubit),
+                        _buildCookingSkillStep(context, state, cubit),
+                        _buildCookingTimeStep(context, state, cubit),
+                        _buildGoalsStep(context, state, cubit),
+                        _buildNotificationsStep(context, state, cubit),
+                        _buildCompleteStep(context, state, cubit),
+                      ],
+                    ),
+                  ),
+
+                  // Bottom action CTA
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.lg,
+                      AppSpacing.sm,
+                      AppSpacing.lg,
+                      AppSpacing.lg,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        AppButton(
+                          label: state.isLastStep
+                              ? "Let's Cook! 🍳"
+                              : (state.currentStep == 7
+                                    ? (state.preferences.notificationsEnabled
+                                          ? "Continue →"
+                                          : "Enable Notifications 🔔")
+                                    : (state.isFirstStep
+                                          ? "Get Started ✨"
+                                          : "Continue →")),
+                          backgroundColor: isDark
+                              ? AppColors.butterGold
+                              : AppColors.primaryGold,
+                          foregroundColor: const Color(0xFF141414),
+                          isLoading: state.status == OnboardingStatus.completing,
+                          onPressed: () async {
+                            FocusScope.of(context).unfocus();
+                            if (state.isFirstStep) {
+                              cubit.updateName(_nameController.text);
+                            }
+                            if (state.currentStep == 7 &&
+                                !state.preferences.notificationsEnabled) {
+                              await cubit.requestNotificationPermission();
+                            }
+                            if (state.isLastStep) {
+                              await cubit.completeOnboarding();
+                            } else {
+                              cubit.nextStep();
+                              _goToPage(state.currentStep + 1);
+                            }
+                          },
+                        ),
+                        if (state.currentStep == 7 &&
+                            !state.preferences.notificationsEnabled) ...[
+                          const SizedBox(height: 8),
+                          TextButton(
+                            onPressed: () {
+                              FocusScope.of(context).unfocus();
+                              cubit.nextStep();
+                              _goToPage(state.currentStep + 1);
+                            },
+                            child: Text(
+                              'Maybe Later',
+                              style: TextStyle(
+                                color: scheme.onSurfaceVariant,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -223,6 +233,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SingleChildScrollView(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.lg,
         vertical: AppSpacing.md,
@@ -310,6 +321,13 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   hintText: 'Enter your name (e.g. Anu)...',
                   controller: _nameController,
                   prefixIcon: Icons.edit_outlined,
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: (val) {
+                    FocusScope.of(context).unfocus();
+                    cubit.updateName(val);
+                    cubit.nextStep();
+                    _goToPage(state.currentStep + 1);
+                  },
                   onChanged: (val) => cubit.updateName(val),
                 ),
               ],
